@@ -6,6 +6,7 @@ from queue import Empty, Queue
 from sys import argv as sys_argv
 from threading import Thread
 from time import sleep
+from traceback import format_exception
 from typing import (
     TYPE_CHECKING,
     Dict,
@@ -58,6 +59,7 @@ class StackInfo(TypedDict):
 class ExceptionInfo(TypedDict):
     name: str
     description: str
+    traceback: str
 
 
 class Log(TypedDict, total=False):
@@ -94,11 +96,21 @@ def get_caller_line_number() -> int:
 
 
 def get_exception_name(exception: Exception) -> str:
+    """获取错误名称
+    """
     return type(exception).__name__
 
 
 def get_exception_description(exception: Exception) -> str:
+    """获取错误描述
+    """
     return exception.args[0]
+
+
+def get_exception_traceback(exception: Exception) -> str:
+    """获取错误堆栈，自动替换相对路径
+    """
+    return "".join(format_exception(exception)).replace(BASE_DIR, "")
 
 
 class RunLogger:
@@ -109,6 +121,7 @@ class RunLogger:
         auto_save_queue_max_size: int = 0,
         stack_info_enabled: bool = True,
         color_enabled: bool = True,
+        traceback_print_enabled: bool = True,
         print_level: LogLevel = LogLevel.DEBUG,
         save_level: LogLevel = LogLevel.INFO,
     ) -> None:
@@ -126,6 +139,7 @@ class RunLogger:
 
         self.stack_info_enabled = stack_info_enabled
         self.color_enabled = color_enabled
+        self.traceback_print_enabled = traceback_print_enabled
 
         if self.auto_save_enabled:
             self.save_queue: Queue[Log] = Queue(auto_save_queue_max_size)
@@ -210,6 +224,7 @@ class RunLogger:
             result["exception_info"] = {
                 "name": get_exception_name(exception),
                 "description": get_exception_description(exception),
+                "traceback": get_exception_traceback(exception),
             }
         if extra:
             result["extra"] = extra
@@ -242,12 +257,14 @@ class RunLogger:
         )
 
         if extra := log.get("extra"):
-            print("\tExtra：", "，".join([f"{k}={v}" for k, v in extra.items()]), sep="")
+            print("    Extra：", "，".join([f"{k}={v}" for k, v in extra.items()]), sep="")
 
         if exception_info := log.get("exception_info"):
             print(
-                f"\tException：{exception_info['name']}: {exception_info['description']}"
+                f"    Exception：{exception_info['name']}: {exception_info['description']}"
             )
+            if self.traceback_print_enabled:
+                print("        " + exception_info["traceback"].replace("\n", "\n        "))
 
     def _save_log_obj(self, log: Log) -> None:
         self.save_queue.put(log)
