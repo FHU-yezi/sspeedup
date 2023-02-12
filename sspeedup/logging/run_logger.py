@@ -16,6 +16,8 @@ from typing import (
     TypeVar,
 )
 
+from sspeedup.colorful_print import COLOR_RESET, BackgroundColor, ForegroundColor
+
 if TYPE_CHECKING:
     from pymongo.collection import Collection
 
@@ -31,12 +33,20 @@ class LogLevel(Enum):
     CRITICAL = "CRITICAL"
 
 
-_LOG_LEVEL_TO_NUM = {
+_LOG_LEVEL_TO_NUM: Dict[LogLevel, int] = {
     LogLevel.DEBUG: 0,
     LogLevel.INFO: 1,
     LogLevel.WARNING: 2,
     LogLevel.ERROR: 3,
     LogLevel.CRITICAL: 4,
+}
+
+_LOG_LEVEL_TO_COLOR: Dict[str, str] = {
+    LogLevel.DEBUG.name: "",
+    LogLevel.INFO.name: ForegroundColor.CYAN.value,
+    LogLevel.WARNING.name: ForegroundColor.YELLOW.value,
+    LogLevel.ERROR.name: ForegroundColor.RED.value,
+    LogLevel.CRITICAL.name: BackgroundColor.RED.value,
 }
 
 
@@ -98,6 +108,7 @@ class RunLogger:
         auto_save_interval: int = 60,
         auto_save_queue_max_size: int = 0,
         stack_info_enabled: bool = True,
+        color_enabled: bool = True,
         print_level: LogLevel = LogLevel.DEBUG,
         save_level: LogLevel = LogLevel.INFO,
     ) -> None:
@@ -106,12 +117,15 @@ class RunLogger:
 
         self.auto_save_interval = auto_save_interval
         # 如不开启数据库存储，则不启用自动保存
-        self.auto_save_enabled: bool = auto_save_interval > 0 if self.db_save_enabled else False
+        self.auto_save_enabled: bool = (
+            auto_save_interval > 0 if self.db_save_enabled else False
+        )
 
         self.save_level = save_level
         self.print_level = print_level
 
         self.stack_info_enabled = stack_info_enabled
+        self.color_enabled = color_enabled
 
         if self.auto_save_enabled:
             self.save_queue: Queue[Log] = Queue(auto_save_queue_max_size)
@@ -203,21 +217,29 @@ class RunLogger:
         return result
 
     def _print_log_obj(self, log: Log) -> None:
-        if self.stack_info_enabled:
-            print(
-                f"[{datetime.now().strftime(r'%Y-%m-%d %H:%M:%S')}]",
-                f"[{log['stack_info']['file_name']}:{log['stack_info']['line_number']}]",  # type: ignore
-                f"[{log['level']}]",  # type: ignore
-                log["content"],  # type: ignore
-                sep=" ",
+        if self.color_enabled:
+            time_str = f"{ForegroundColor.CYAN.value}[{datetime.now().strftime(r'%Y-%m-%d %H:%M:%S')}]{COLOR_RESET}"
+            stack_str = (
+                f"{ForegroundColor.MAGENTA.value}[{log['stack_info']['file_name']}:{log['stack_info']['line_number']}]{COLOR_RESET}"  # type: ignore
+                if self.stack_info_enabled
+                else None
             )
+            level_str = f"{_LOG_LEVEL_TO_COLOR[log['level']]}[{log['level']}]"  # type: ignore
+            content_str = f"{log['content']}{COLOR_RESET}"  # type: ignore
         else:
-            print(
-                f"[{datetime.now().strftime(r'%Y-%m-%d %H:%M:%S')}]",
-                f"[{log['level']}]",  # type: ignore
-                log["content"],  # type: ignore
-                sep=" ",
+            time_str = f"[{datetime.now().strftime(r'%Y-%m-%d %H:%M:%S')}]"
+            stack_str = (
+                f"[{log['stack_info']['file_name']}:{log['stack_info']['line_number']}]"  # type: ignore
+                if self.stack_info_enabled
+                else None
             )
+            level_str = f"[{log['level']}]"  # type: ignore
+            content_str = log["content"]  # type: ignore
+
+        print(
+            *filter(None, [time_str, stack_str, level_str, content_str]),
+            sep=" ",
+        )
 
         if extra := log.get("extra"):
             print("\tExtra：", "，".join([f"{k}={v}" for k, v in extra.items()]), sep="")
