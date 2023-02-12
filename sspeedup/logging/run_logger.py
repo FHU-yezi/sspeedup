@@ -14,7 +14,7 @@ from typing import (
     Optional,
     Sequence,
     TypedDict,
-    TypeVar,
+    Union,
 )
 
 from sspeedup.colorful_print import COLOR_RESET, BackgroundColor, ForegroundColor
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from pymongo.collection import Collection
 
 
-ExtraType = TypeVar("ExtraType", str, int, float, None)
+ExtraType = Union[str, int, float, None]
 
 
 class LogLevel(Enum):
@@ -62,12 +62,12 @@ class ExceptionInfo(TypedDict):
     traceback: str
 
 
-class Log(TypedDict, total=False):
+class Log(TypedDict):
     time: datetime
     level: str
     content: str
-    stack_info: StackInfo
-    exception_info: ExceptionInfo
+    stack_info: Optional[StackInfo]
+    exception_info: Optional[ExceptionInfo]
     extra: Dict[str, ExtraType]  # type: ignore
 
 
@@ -223,6 +223,9 @@ class RunLogger:
             "time": datetime.now(),
             "level": level.value,
             "content": content,
+            "stack_info": None,
+            "exception_info": None,
+            "extra": extra,
         }
         if self.stack_info_enabled:
             result["stack_info"] = {
@@ -235,8 +238,6 @@ class RunLogger:
                 "description": get_exception_description(exception),
                 "traceback": get_exception_traceback(exception),
             }
-        if extra:
-            result["extra"] = extra
 
         return result
 
@@ -248,8 +249,8 @@ class RunLogger:
                 if self.stack_info_enabled
                 else None
             )
-            level_str = f"{_LOG_LEVEL_TO_COLOR[log['level']]}[{log['level']}]"  # type: ignore
-            content_str = f"{log['content']}{COLOR_RESET}"  # type: ignore
+            level_str = f"{_LOG_LEVEL_TO_COLOR[log['level']]}[{log['level']}]"
+            content_str = f"{log['content']}{COLOR_RESET}"
         else:
             time_str = f"[{datetime.now().strftime(r'%Y-%m-%d %H:%M:%S')}]"
             stack_str = (
@@ -257,8 +258,8 @@ class RunLogger:
                 if self.stack_info_enabled
                 else None
             )
-            level_str = f"[{log['level']}]"  # type: ignore
-            content_str = log["content"]  # type: ignore
+            level_str = f"[{log['level']}]"
+            content_str = log["content"]
 
         print(
             *filter(None, [time_str, stack_str, level_str, content_str]),
