@@ -96,20 +96,17 @@ def get_caller_line_number() -> int:
 
 
 def get_exception_name(exception: Exception) -> str:
-    """获取错误名称
-    """
+    """获取错误名称"""
     return type(exception).__name__
 
 
 def get_exception_description(exception: Exception) -> str:
-    """获取错误描述
-    """
+    """获取错误描述"""
     return exception.args[0]
 
 
 def get_exception_traceback(exception: Exception) -> str:
-    """获取错误堆栈，自动替换相对路径
-    """
+    """获取错误堆栈，自动替换相对路径"""
     return "".join(format_exception(exception)).replace(BASE_DIR, "")
 
 
@@ -125,6 +122,18 @@ class RunLogger:
         print_level: LogLevel = LogLevel.DEBUG,
         save_level: LogLevel = LogLevel.INFO,
     ) -> None:
+        """运行日志记录器
+
+        Args:
+            mongo_collection (Optional[&quot;Collection&quot;], optional): 保存日志信息的 MongoDB 集合，为空则禁用数据库存储. Defaults to None.
+            auto_save_interval (int, optional): 自动保存间隔，如禁用数据库存储将忽略此值. Defaults to 60.
+            auto_save_queue_max_size (int, optional): 自动保存队列长度，超出将导致阻塞，0 为不限制. Defaults to 0.
+            stack_info_enabled (bool, optional): 是否记录堆栈信息. Defaults to True.
+            color_enabled (bool, optional): 是否启用彩色输出. Defaults to True.
+            traceback_print_enabled (bool, optional): 是否输出错误堆栈. Defaults to True.
+            print_level (LogLevel, optional): 输出日志等级. Defaults to LogLevel.DEBUG.
+            save_level (LogLevel, optional): 记录日志等级. Defaults to LogLevel.INFO.
+        """
         self.mongo_collection = mongo_collection
         self.db_save_enabled: bool = mongo_collection is not None
 
@@ -257,14 +266,18 @@ class RunLogger:
         )
 
         if extra := log.get("extra"):
-            print("    Extra：", "，".join([f"{k}={v}" for k, v in extra.items()]), sep="")
+            print(
+                "    Extra：", "，".join([f"{k}={v}" for k, v in extra.items()]), sep=""
+            )
 
         if exception_info := log.get("exception_info"):
             print(
                 f"    Exception：{exception_info['name']}: {exception_info['description']}"
             )
             if self.traceback_print_enabled:
-                print("        " + exception_info["traceback"].replace("\n", "\n        "))
+                print(
+                    "        " + exception_info["traceback"].replace("\n", "\n        ")
+                )
 
     def _save_log_obj(self, log: Log) -> None:
         self.save_queue.put(log)
