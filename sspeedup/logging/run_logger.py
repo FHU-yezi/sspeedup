@@ -1,3 +1,4 @@
+from atexit import register as atexit_register
 from datetime import datetime
 from enum import Enum
 from os import path as os_path
@@ -137,6 +138,7 @@ class RunLogger:
         stack_info_enabled: bool = True,
         color_enabled: bool = True,
         traceback_print_enabled: bool = True,
+        save_when_exit: bool = True,
         print_level: LogLevel = LogLevel.DEBUG,
         save_level: LogLevel = LogLevel.INFO,
     ) -> None:
@@ -149,6 +151,7 @@ class RunLogger:
             stack_info_enabled (bool, optional): 是否记录堆栈信息. Defaults to True.
             color_enabled (bool, optional): 是否启用彩色输出. Defaults to True.
             traceback_print_enabled (bool, optional): 是否输出错误堆栈. Defaults to True.
+            save_when_exit (bool, optional): 注册退出处理程序，在退出时将日志信息保存到数据库，如禁用数据库存储将忽略此值. Defaults to True.
             print_level (LogLevel, optional): 输出日志等级. Defaults to LogLevel.DEBUG.
             save_level (LogLevel, optional): 记录日志等级. Defaults to LogLevel.INFO.
         """
@@ -176,6 +179,9 @@ class RunLogger:
                 daemon=True,
             )
             self.auto_save_thread.start()
+
+        if save_when_exit and self.db_save_enabled:
+            atexit_register(self.save)
 
     def _auto_save(self) -> None:
         """自动保存线程"""
