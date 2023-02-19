@@ -7,6 +7,7 @@ from sys import argv as sys_argv
 from threading import Thread
 from time import sleep
 from traceback import format_exception
+from types import FrameType
 from typing import (
     TYPE_CHECKING,
     Dict,
@@ -86,19 +87,23 @@ def _get_base_dir() -> str:
 BASE_DIR = _get_base_dir()
 
 
-def get_caller_filename() -> str:
+def get_caller_frame_obj() -> FrameType:
+    return _getframe(4)
+
+
+def get_caller_filename(frame_obj: FrameType) -> str:
     """获取调用者文件名，使用相对路径"""
-    return _getframe(4).f_code.co_filename.replace(BASE_DIR, "")
+    return frame_obj.f_code.co_filename.replace(BASE_DIR, "")
 
 
-def get_caller_line_number() -> int:
+def get_caller_line_number(frame_obj: FrameType) -> int:
     """获取调用者行号"""
-    return _getframe(4).f_lineno
+    return frame_obj.f_lineno
 
 
-def get_caller_name() -> str:
+def get_caller_name(frame_obj: FrameType) -> str:
     """获取调用者名称"""
-    return _getframe(4).f_code.co_name
+    return frame_obj.f_code.co_name
 
 
 def get_exception_name(exception: Exception) -> str:
@@ -234,10 +239,11 @@ class RunLogger:
             "extra": extra,
         }
         if self.stack_info_enabled:
+            frame_obj = get_caller_frame_obj()
             result["stack_info"] = {
-                "file_name": get_caller_filename(),
-                "caller_name": get_caller_name(),
-                "line_number": get_caller_line_number(),
+                "file_name": get_caller_filename(frame_obj),
+                "caller_name": get_caller_name(frame_obj),
+                "line_number": get_caller_line_number(frame_obj),
             }
         if exception:
             result["exception_info"] = {
