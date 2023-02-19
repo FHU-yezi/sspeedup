@@ -3,6 +3,7 @@ from enum import Enum
 from inspect import currentframe
 from os import path as os_path
 from queue import Empty, Queue
+from sys import _getframe
 from sys import argv as sys_argv
 from threading import Thread
 from time import sleep
@@ -53,6 +54,7 @@ _LOG_LEVEL_TO_COLOR: Dict[str, str] = {
 
 class StackInfo(TypedDict):
     file_name: str
+    caller_name: str
     line_number: int
 
 
@@ -93,6 +95,12 @@ def get_caller_filename() -> str:
 def get_caller_line_number() -> int:
     """获取调用者行号"""
     return currentframe().f_back.f_back.f_back.f_back.f_lineno  # type: ignore [union-attr]
+
+
+def get_caller_name() -> str:
+    """获取调用者名称
+    """
+    return _getframe(4).f_code.co_name  # type: ignore [union-attr]
 
 
 def get_exception_name(exception: Exception) -> str:
@@ -230,6 +238,7 @@ class RunLogger:
         if self.stack_info_enabled:
             result["stack_info"] = {
                 "file_name": get_caller_filename(),
+                "caller_name": get_caller_name(),
                 "line_number": get_caller_line_number(),
             }
         if exception:
@@ -245,7 +254,7 @@ class RunLogger:
         if self.color_enabled:
             time_str = f"{ForegroundColor.CYAN.value}[{datetime.now().strftime(r'%Y-%m-%d %H:%M:%S')}]{COLOR_RESET}"
             stack_str = (
-                f"{ForegroundColor.MAGENTA.value}[{log['stack_info']['file_name']}:{log['stack_info']['line_number']}]{COLOR_RESET}"  # type: ignore
+                f"{ForegroundColor.MAGENTA.value}[{log['stack_info']['file_name']}:{log['stack_info']['line_number']} ({log['stack_info']['caller_name']})]{COLOR_RESET}"  # type: ignore
                 if self.stack_info_enabled
                 else None
             )
