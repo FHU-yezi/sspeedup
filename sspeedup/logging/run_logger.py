@@ -1,6 +1,5 @@
 from datetime import datetime
 from enum import Enum
-from inspect import currentframe
 from os import path as os_path
 from queue import Empty, Queue
 from sys import _getframe
@@ -89,18 +88,17 @@ BASE_DIR = _get_base_dir()
 
 def get_caller_filename() -> str:
     """获取调用者文件名，使用相对路径"""
-    return currentframe().f_back.f_back.f_back.f_back.f_code.co_filename.replace(BASE_DIR, "")  # type: ignore [union-attr]
+    return _getframe(4).f_code.co_filename.replace(BASE_DIR, "")
 
 
 def get_caller_line_number() -> int:
     """获取调用者行号"""
-    return currentframe().f_back.f_back.f_back.f_back.f_lineno  # type: ignore [union-attr]
+    return _getframe(4).f_lineno
 
 
 def get_caller_name() -> str:
-    """获取调用者名称
-    """
-    return _getframe(4).f_code.co_name  # type: ignore [union-attr]
+    """获取调用者名称"""
+    return _getframe(4).f_code.co_name
 
 
 def get_exception_name(exception: Exception) -> str:
