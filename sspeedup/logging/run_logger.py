@@ -24,7 +24,14 @@ if TYPE_CHECKING:
     from pymongo.collection import Collection
 
 
-ExtraType = Union[str, int, float, None]
+ExtraType = Union[
+    str,
+    int,
+    float,
+    List[Union[str, int, float]],
+    Dict[str, Union[str, int, float]],
+    None,
+]
 
 
 class LogLevel(Enum):
