@@ -192,7 +192,7 @@ class RunLogger:
 
     def _save_one(self, log: Log) -> None:
         """保存一条数据到数据库"""
-        assert self.mongo_collection
+        assert self.mongo_collection is not None
         self.mongo_collection.insert_one(log)
 
     def _save_many(self, logs: Sequence[Log]) -> None:
@@ -200,7 +200,7 @@ class RunLogger:
         if not logs:
             return  # 序列为空，直接返回
 
-        assert self.mongo_collection
+        assert self.mongo_collection is not None
         self.mongo_collection.insert_many(logs)
 
     def _get_one(self) -> Optional[Log]:
@@ -213,9 +213,11 @@ class RunLogger:
     def _get_all(self) -> List[Log]:
         """获取所有待保存的数据，如果没有，返回空列表"""
         result: List[Log] = []
-        while self.save_queue.not_empty:
-            result.append(self.save_queue.get())
-        return result
+        try:
+            while True:
+                result.append(self.save_queue.get_nowait())
+        except Empty:
+            return result
 
     def _need_print(self, level: LogLevel) -> bool:
         return level in _greater_or_equal_than(self.print_level)
