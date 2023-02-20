@@ -1,8 +1,8 @@
 from atexit import register as atexit_register
+from collections import deque
 from datetime import datetime
 from enum import Enum
 from os import path as os_path
-from queue import Empty, Queue
 from sys import _getframe
 from sys import argv as sys_argv
 from threading import Thread
@@ -134,7 +134,7 @@ class RunLogger:
         self,
         mongo_collection: Optional["Collection"] = None,
         auto_save_interval: int = 60,
-        auto_save_queue_max_size: int = 0,
+        auto_save_queue_max_size: Optional[int] = None,
         stack_info_enabled: bool = True,
         color_enabled: bool = True,
         traceback_print_enabled: bool = True,
@@ -147,7 +147,7 @@ class RunLogger:
         Args:
             mongo_collection (Optional[&quot;Collection&quot;], optional): 保存日志信息的 MongoDB 集合，为空则禁用数据库存储. Defaults to None.
             auto_save_interval (int, optional): 自动保存间隔，如禁用数据库存储将忽略此值. Defaults to 60.
-            auto_save_queue_max_size (int, optional): 自动保存队列长度，超出将导致阻塞，0 为不限制. Defaults to 0.
+            auto_save_queue_max_size (int, optional): 自动保存队列长度，超出将删除最旧的未记录数据，None 为不限制. Defaults to None.
             stack_info_enabled (bool, optional): 是否记录堆栈信息. Defaults to True.
             color_enabled (bool, optional): 是否启用彩色输出. Defaults to True.
             traceback_print_enabled (bool, optional): 是否输出错误堆栈. Defaults to True.
@@ -172,7 +172,7 @@ class RunLogger:
         self.traceback_print_enabled = traceback_print_enabled
 
         if self.auto_save_enabled:
-            self.save_queue: Queue[Log] = Queue(auto_save_queue_max_size)
+            self.save_queue: deque[Log] = deque(maxlen=auto_save_queue_max_size)
             self.auto_save_thread = Thread(
                 target=self._auto_save,
                 name="run-logger-auto-save",
@@ -198,7 +198,7 @@ class RunLogger:
         if not self.db_save_enabled:
             raise ValueError("数据库保存未开启")
 
-        if self.save_queue.empty():
+        if not len(self.save_queue):
             return  # 没有待保存的数据，直接返回
 
         self._save_many(self._get_all())
@@ -219,8 +219,8 @@ class RunLogger:
     def _get_one(self) -> Optional[Log]:
         """获取一条待保存的数据，如果没有，返回 None"""
         try:
-            return self.save_queue.get_nowait()
-        except Empty:
+            return self.save_queue.popleft()
+        except IndexError:
             return None
 
     def _get_all(self) -> List[Log]:
@@ -228,8 +228,8 @@ class RunLogger:
         result: List[Log] = []
         try:
             while True:
-                result.append(self.save_queue.get_nowait())
-        except Empty:
+                result.append(self.save_queue.popleft())
+        except IndexError:
             return result
 
     def _need_print(self, level: LogLevel) -> bool:
@@ -309,7 +309,7 @@ class RunLogger:
                 )
 
     def _save_log_obj(self, log: Log) -> None:
-        self.save_queue.put(log)
+        self.save_queue.append(log)
 
     def _log(
         self,
