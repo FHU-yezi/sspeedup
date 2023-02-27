@@ -62,25 +62,25 @@ _LOG_LEVEL_TO_COLOR: Dict[str, str] = {
 }
 
 
-class StackInfo(TypedDict):
+class _StackInfo(TypedDict):
     file_name: str
     caller_name: str
     line_number: int
     thread_name: str
 
 
-class ExceptionInfo(TypedDict):
+class _ExceptionInfo(TypedDict):
     name: str
     description: str
     traceback: str
 
 
-class LogRecord(TypedDict):
+class _LogRecord(TypedDict):
     time: datetime
     level: str
     content: str
-    stack_info: Optional[StackInfo]
-    exception_info: Optional[ExceptionInfo]
+    stack_info: Optional[_StackInfo]
+    exception_info: Optional[_ExceptionInfo]
     extra: Dict[str, ExtraType]  # type: ignore
 
 
@@ -95,44 +95,44 @@ def _get_base_dir() -> str:
     return os_path.dirname(os_path.realpath(sys_argv[0])) + "/"
 
 
-BASE_DIR = _get_base_dir()
+_BASE_DIR = _get_base_dir()
 
 
-def get_caller_frame_obj() -> FrameType:
+def _get_caller_frame_obj() -> FrameType:
     return _getframe(4)
 
 
-def get_caller_filename(frame_obj: FrameType) -> str:
+def _get_caller_filename(frame_obj: FrameType) -> str:
     """获取调用者文件名，使用相对路径"""
-    return frame_obj.f_code.co_filename.replace(BASE_DIR, "")
+    return frame_obj.f_code.co_filename.replace(_BASE_DIR, "")
 
 
-def get_caller_line_number(frame_obj: FrameType) -> int:
+def _get_caller_line_number(frame_obj: FrameType) -> int:
     """获取调用者行号"""
     return frame_obj.f_lineno
 
 
-def get_caller_name(frame_obj: FrameType) -> str:
+def _get_caller_name(frame_obj: FrameType) -> str:
     """获取调用者名称"""
     return frame_obj.f_code.co_name
 
 
-def get_exception_name(exception: Exception) -> str:
+def _get_exception_name(exception: Exception) -> str:
     """获取错误名称"""
     return type(exception).__name__
 
 
-def get_exception_description(exception: Exception) -> str:
+def _get_exception_description(exception: Exception) -> str:
     """获取错误描述"""
     return exception.args[0]
 
 
-def get_exception_traceback(exception: Exception) -> str:
+def _get_exception_traceback(exception: Exception) -> str:
     """获取错误堆栈，自动替换相对路径"""
-    return "".join(format_exception(exception)).replace(BASE_DIR, "")
+    return "".join(format_exception(exception)).replace(_BASE_DIR, "")
 
 
-def get_current_thread_name() -> str:
+def _get_current_thread_name() -> str:
     """获取当前线程名"""
     return threading_get_current().name
 
@@ -184,7 +184,7 @@ class RunLogger:
         self.thread_name_print_enabled = thread_name_print_enabled
 
         if self.auto_save_enabled:
-            self.save_queue: deque[LogRecord] = deque(maxlen=auto_save_queue_max_size)
+            self.save_queue: deque[_LogRecord] = deque(maxlen=auto_save_queue_max_size)
             self.auto_save_thread = Thread(
                 target=self._auto_save,
                 name="run-logger-auto-save",
@@ -215,12 +215,12 @@ class RunLogger:
 
         self._save_many(self._get_all())
 
-    def _save_one(self, log: LogRecord) -> None:
+    def _save_one(self, log: _LogRecord) -> None:
         """保存一条数据到数据库"""
         assert self.mongo_collection is not None
         self.mongo_collection.insert_one(log)
 
-    def _save_many(self, logs: Sequence[LogRecord]) -> None:
+    def _save_many(self, logs: Sequence[_LogRecord]) -> None:
         """保存一批数据到数据库"""
         if not logs:
             return  # 序列为空，直接返回
@@ -228,16 +228,16 @@ class RunLogger:
         assert self.mongo_collection is not None
         self.mongo_collection.insert_many(logs)
 
-    def _get_one(self) -> Optional[LogRecord]:
+    def _get_one(self) -> Optional[_LogRecord]:
         """获取一条待保存的数据，如果没有，返回 None"""
         try:
             return self.save_queue.popleft()
         except IndexError:
             return None
 
-    def _get_all(self) -> List[LogRecord]:
+    def _get_all(self) -> List[_LogRecord]:
         """获取所有待保存的数据，如果没有，返回空列表"""
-        result: List[LogRecord] = []
+        result: List[_LogRecord] = []
         try:
             while True:
                 result.append(self.save_queue.popleft())
@@ -256,8 +256,8 @@ class RunLogger:
         content: str,
         exception: Optional[Exception],
         **extra: ExtraType,
-    ) -> LogRecord:
-        result: LogRecord = {
+    ) -> _LogRecord:
+        result: _LogRecord = {
             "time": datetime.now(),
             "level": level.value,
             "content": content,
@@ -266,23 +266,23 @@ class RunLogger:
             "extra": extra,
         }
         if self.stack_info_enabled:
-            frame_obj = get_caller_frame_obj()
+            frame_obj = _get_caller_frame_obj()
             result["stack_info"] = {
-                "file_name": get_caller_filename(frame_obj),
-                "caller_name": get_caller_name(frame_obj),
-                "line_number": get_caller_line_number(frame_obj),
-                "thread_name": get_current_thread_name(),
+                "file_name": _get_caller_filename(frame_obj),
+                "caller_name": _get_caller_name(frame_obj),
+                "line_number": _get_caller_line_number(frame_obj),
+                "thread_name": _get_current_thread_name(),
             }
         if exception:
             result["exception_info"] = {
-                "name": get_exception_name(exception),
-                "description": get_exception_description(exception),
-                "traceback": get_exception_traceback(exception),
+                "name": _get_exception_name(exception),
+                "description": _get_exception_description(exception),
+                "traceback": _get_exception_traceback(exception),
             }
 
         return result
 
-    def _print_log_obj(self, log: LogRecord) -> None:
+    def _print_log_obj(self, log: _LogRecord) -> None:
         if self.color_enabled:
             time_str = f"{ForegroundColor.CYAN.value}[{datetime.now().strftime(r'%Y-%m-%d %H:%M:%S')}]{COLOR_RESET}"
             stack_str = (
@@ -335,7 +335,7 @@ class RunLogger:
                     "        " + exception_info["traceback"].replace("\n", "\n        ")
                 )
 
-    def _save_log_obj(self, log: LogRecord) -> None:
+    def _save_log_obj(self, log: _LogRecord) -> None:
         self.save_queue.append(log)
 
     def _log(
