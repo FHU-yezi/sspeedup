@@ -6,6 +6,7 @@ from os import path as os_path
 from sys import _getframe
 from sys import argv as sys_argv
 from threading import Thread
+from threading import current_thread as threading_get_current
 from time import sleep
 from traceback import format_exception
 from types import FrameType
@@ -13,6 +14,7 @@ from typing import (
     TYPE_CHECKING,
     Dict,
     List,
+    Literal,
     Optional,
     Sequence,
     TypedDict,
@@ -64,6 +66,7 @@ class StackInfo(TypedDict):
     file_name: str
     caller_name: str
     line_number: int
+    thread_name: str
 
 
 class ExceptionInfo(TypedDict):
@@ -129,15 +132,22 @@ def get_exception_traceback(exception: Exception) -> str:
     return "".join(format_exception(exception)).replace(BASE_DIR, "")
 
 
+def get_current_thread_name() -> str:
+    """获取当前线程名"""
+    return threading_get_current().name
+
+
 class RunLogger:
     def __init__(
         self,
         mongo_collection: Optional["Collection"] = None,
+        *,
         auto_save_interval: int = 60,
         auto_save_queue_max_size: Optional[int] = None,
         stack_info_enabled: bool = True,
         color_enabled: bool = True,
         traceback_print_enabled: bool = True,
+        thread_name_print_enabled: Union[bool, Literal["except_main"]] = "except_main",
         save_when_exit: bool = True,
         print_level: LogLevel = LogLevel.DEBUG,
         save_level: LogLevel = LogLevel.INFO,
@@ -151,6 +161,7 @@ class RunLogger:
             stack_info_enabled (bool, optional): 是否记录堆栈信息. Defaults to True.
             color_enabled (bool, optional): 是否启用彩色输出. Defaults to True.
             traceback_print_enabled (bool, optional): 是否输出错误堆栈. Defaults to True.
+            thread_name_print_enabled (Union[bool, Literal["except_main"]], optional): 是否输出线程名. Defaults to True.
             save_when_exit (bool, optional): 注册退出处理程序，在退出时将日志信息保存到数据库，如禁用数据库存储将忽略此值. Defaults to True.
             print_level (LogLevel, optional): 输出日志等级. Defaults to LogLevel.DEBUG.
             save_level (LogLevel, optional): 记录日志等级. Defaults to LogLevel.INFO.
@@ -170,6 +181,7 @@ class RunLogger:
         self.stack_info_enabled = stack_info_enabled
         self.color_enabled = color_enabled
         self.traceback_print_enabled = traceback_print_enabled
+        self.thread_name_print_enabled = thread_name_print_enabled
 
         if self.auto_save_enabled:
             self.save_queue: deque[LogRecord] = deque(maxlen=auto_save_queue_max_size)
@@ -259,6 +271,7 @@ class RunLogger:
                 "file_name": get_caller_filename(frame_obj),
                 "caller_name": get_caller_name(frame_obj),
                 "line_number": get_caller_line_number(frame_obj),
+                "thread_name": get_current_thread_name(),
             }
         if exception:
             result["exception_info"] = {
@@ -277,6 +290,13 @@ class RunLogger:
                 if self.stack_info_enabled
                 else None
             )
+            if (
+                self.thread_name_print_enabled == "except_main"
+                and log["stack_info"]["thread_name"] != "MainThread"  # type: ignore
+            ) or self.thread_name_print_enabled is True:
+                thread_str = f"{ForegroundColor.MAGENTA.value}[{log['stack_info']['thread_name']}]{COLOR_RESET}"  # type: ignore
+            else:
+                thread_str = ""
             level_str = f"{_LOG_LEVEL_TO_COLOR[log['level']]}[{log['level']}]"
             content_str = f"{log['content']}{COLOR_RESET}"
         else:
@@ -286,11 +306,18 @@ class RunLogger:
                 if self.stack_info_enabled
                 else None
             )
+            if (
+                self.thread_name_print_enabled == "except_main"
+                and log["stack_info"]["thread_name"] != "MainThread"  # type: ignore
+            ) or self.thread_name_print_enabled is True:
+                thread_str = f"[{log['stack_info']['thread_name']}]"  # type: ignore
+            else:
+                thread_str = ""
             level_str = f"[{log['level']}]"
             content_str = log["content"]
 
         print(
-            *filter(None, [time_str, stack_str, level_str, content_str]),
+            *filter(None, [time_str, stack_str, thread_str, level_str, content_str]),
             sep=" ",
         )
 
