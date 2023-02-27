@@ -72,7 +72,7 @@ class ExceptionInfo(TypedDict):
     traceback: str
 
 
-class Log(TypedDict):
+class LogRecord(TypedDict):
     time: datetime
     level: str
     content: str
@@ -172,7 +172,7 @@ class RunLogger:
         self.traceback_print_enabled = traceback_print_enabled
 
         if self.auto_save_enabled:
-            self.save_queue: deque[Log] = deque(maxlen=auto_save_queue_max_size)
+            self.save_queue: deque[LogRecord] = deque(maxlen=auto_save_queue_max_size)
             self.auto_save_thread = Thread(
                 target=self._auto_save,
                 name="run-logger-auto-save",
@@ -203,12 +203,12 @@ class RunLogger:
 
         self._save_many(self._get_all())
 
-    def _save_one(self, log: Log) -> None:
+    def _save_one(self, log: LogRecord) -> None:
         """保存一条数据到数据库"""
         assert self.mongo_collection is not None
         self.mongo_collection.insert_one(log)
 
-    def _save_many(self, logs: Sequence[Log]) -> None:
+    def _save_many(self, logs: Sequence[LogRecord]) -> None:
         """保存一批数据到数据库"""
         if not logs:
             return  # 序列为空，直接返回
@@ -216,16 +216,16 @@ class RunLogger:
         assert self.mongo_collection is not None
         self.mongo_collection.insert_many(logs)
 
-    def _get_one(self) -> Optional[Log]:
+    def _get_one(self) -> Optional[LogRecord]:
         """获取一条待保存的数据，如果没有，返回 None"""
         try:
             return self.save_queue.popleft()
         except IndexError:
             return None
 
-    def _get_all(self) -> List[Log]:
+    def _get_all(self) -> List[LogRecord]:
         """获取所有待保存的数据，如果没有，返回空列表"""
-        result: List[Log] = []
+        result: List[LogRecord] = []
         try:
             while True:
                 result.append(self.save_queue.popleft())
@@ -244,8 +244,8 @@ class RunLogger:
         content: str,
         exception: Optional[Exception],
         **extra: ExtraType,
-    ) -> Log:
-        result: Log = {
+    ) -> LogRecord:
+        result: LogRecord = {
             "time": datetime.now(),
             "level": level.value,
             "content": content,
@@ -269,7 +269,7 @@ class RunLogger:
 
         return result
 
-    def _print_log_obj(self, log: Log) -> None:
+    def _print_log_obj(self, log: LogRecord) -> None:
         if self.color_enabled:
             time_str = f"{ForegroundColor.CYAN.value}[{datetime.now().strftime(r'%Y-%m-%d %H:%M:%S')}]{COLOR_RESET}"
             stack_str = (
@@ -308,7 +308,7 @@ class RunLogger:
                     "        " + exception_info["traceback"].replace("\n", "\n        ")
                 )
 
-    def _save_log_obj(self, log: Log) -> None:
+    def _save_log_obj(self, log: LogRecord) -> None:
         self.save_queue.append(log)
 
     def _log(
