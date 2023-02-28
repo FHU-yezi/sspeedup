@@ -1,0 +1,36 @@
+[tool.poetry]
+name = "sspeedup"
+version = "0.1.0"
+description = "开发工具箱"
+authors = ["yezi <yehaowei20060411@qq.com>"]
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/FHU-yezi/sspeedup"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3 :: Only",
+    "Typing :: Typed"
+]
+
+[tool.poetry.dependencies]
+python = "^3.8"
+pymongo = { version = "^4.3.3", extras = ["logging"] }
+jieba = { version="^0.42.1", extras = ["word-split-jieba"] }
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.0.253"
+pyright = "^1.1.293"
+black = "^23.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.ruff]
+
+select = ["A", "ANN", "B", "C", "E", "F", "I", "N", "RET", "S", "SIM", "UP", "W"]
+
+ignore = ["ANN101", "ANN102", "ANN401", "C901", "E501", "S101", "S104"]
+
+target-version = "py38"
