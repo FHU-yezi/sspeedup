@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sspeedup"
-version = "0.1.0"
+version = "0.2.0"
 description = "开发工具箱"
 authors = ["yezi <yehaowei20060411@qq.com>"]
 license = "MIT"
@@ -17,6 +17,8 @@ classifiers = [
 python = "^3.8"
 pymongo = { version = "^4.3.3", extras = ["logging"] }
 jieba = { version="^0.42.1", extras = ["word-split-jieba"] }
+qrcode = { version="^7.4.2", extras = ["qrcode"] }
+pywebio = { version="^1.7.1", extras = ["pywebio"] }
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.253"
