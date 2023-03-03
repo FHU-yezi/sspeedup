@@ -17,6 +17,7 @@ classifiers = [
 python = "^3.8"
 pymongo = { version = "^4.3.3", extras = ["logging"] }
 jieba = { version="^0.42.1", extras = ["word-split-jieba"] }
+qrcode = { version="^7.4.2", extras = ["qrcode"] }
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.253"
