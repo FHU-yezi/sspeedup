@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sspeedup"
-version = "0.3.0"
+version = "0.3.1"
 description = "开发工具箱"
 authors = ["yezi <yehaowei20060411@qq.com>"]
 license = "MIT"
@@ -15,15 +15,21 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.8"
-pymongo = { version = "^4.3.3", extras = ["logging"] }
-jieba = { version="^0.42.1", extras = ["word-split-jieba"] }
-qrcode = { version="^7.4.2", extras = ["qrcode"] }
-pywebio = { version="^1.7.1", extras = ["pywebio"] }
+pymongo = { version = "^4.3.3", optional = true }
+jieba = { version="^0.42.1", optional = true }
+qrcode = { version="^7.4.2", optional = true }
+pywebio = { version="^1.7.1", optional = true }
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.253"
 pyright = "^1.1.293"
 black = "^23.1.0"
+
+[tool.poetry.extras]
+logging = ["pymongo"]
+word-split-jieba = ["jieba"]
+qrcode = ["qrcode"]
+pywebio = ["pywebio"]
 
 [build-system]
 requires = ["poetry-core"]
