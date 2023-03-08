@@ -161,7 +161,7 @@ class RunLogger:
             stack_info_enabled (bool, optional): 是否记录堆栈信息. Defaults to True.
             color_enabled (bool, optional): 是否启用彩色输出. Defaults to True.
             traceback_print_enabled (bool, optional): 是否输出错误堆栈. Defaults to True.
-            thread_name_print_enabled (Union[bool, Literal["except_main"]], optional): 是否输出线程名. Defaults to True.
+            thread_name_print_enabled (Union[bool, Literal["except_main"]], optional): 是否输出线程名. Defaults to "except_main".
             save_when_exit (bool, optional): 注册退出处理程序，在退出时将日志信息保存到数据库，如禁用数据库存储将忽略此值. Defaults to True.
             print_level (LogLevel, optional): 输出日志等级. Defaults to LogLevel.DEBUG.
             save_level (LogLevel, optional): 记录日志等级. Defaults to LogLevel.INFO.
