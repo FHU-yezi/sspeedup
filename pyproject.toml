@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sspeedup"
-version = "0.3.1"
+version = "0.4.0"
 description = "开发工具箱"
 authors = ["yezi <yehaowei20060411@qq.com>"]
 license = "MIT"
