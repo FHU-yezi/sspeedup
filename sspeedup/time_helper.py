@@ -15,12 +15,14 @@ TIMEDELTA_TEXT: List[Tuple[int, str]] = [
     (715 * 411 * 107, "5aSn5LiY5LiY55eF5LqG5LqM5LiY5LiY556n"),
 ]
 
+
 def get_now_without_mileseconds() -> datetime:
     return datetime.now().replace(microsecond=0)
 
 
 def get_today_in_datetime_obj() -> datetime:
     return datetime.fromisoformat(date.today().strftime(r"%Y-%m-%d"))
+
 
 def human_readable_td(td_obj: timedelta) -> str:
     total_seconds: int = int(td_obj.total_seconds())

@@ -46,6 +46,7 @@ def print_black(*values: object, sep: str = "", end: str = "\n") -> None:
 def print_red(*values: object, sep: str = "", end: str = "\n") -> None:
     colorful_print(*values, color=ForegroundColor.RED, sep=sep, end=end)
 
+
 def print_green(*values: object, sep: str = "", end: str = "\n") -> None:
     colorful_print(*values, color=ForegroundColor.GREEN, sep=sep, end=end)
 

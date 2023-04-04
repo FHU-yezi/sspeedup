@@ -24,7 +24,7 @@ def retry(
             nonlocal exceptions
 
             if type(exceptions) == type(Exception):
-                handle_exceptions = (exceptions, )
+                handle_exceptions = (exceptions,)
             else:
                 handle_exceptions = exceptions
 
@@ -38,7 +38,9 @@ def retry(
                     last_exception = e
                     wait = next(policy_obj)
                     if on_retry:
-                        on_retry(RetryEvent(func=func, exception=e, tries=tries, wait=wait))
+                        on_retry(
+                            RetryEvent(func=func, exception=e, tries=tries, wait=wait)
+                        )
                     sleep(wait)
                     tries += 1
 

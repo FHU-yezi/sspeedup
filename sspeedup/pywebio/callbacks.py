@@ -1,4 +1,3 @@
-
 from typing import Callable
 
 from pywebio.io_ctrl import output_register_callback as get_callback_id

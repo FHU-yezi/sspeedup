@@ -2,7 +2,7 @@ from importlib import import_module
 
 
 def require(name: str) -> None:
-    """测试模块是否已经安装，如已安装则返回对应模块对象
+    """测试模块是否已经安装
 
     Args:
         name (str): 模块名
