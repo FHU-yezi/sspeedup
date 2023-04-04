@@ -21,7 +21,7 @@ qrcode = { version="^7.4.2", optional = true }
 pywebio = { version="^1.7.1", optional = true }
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.0.256"
+ruff = "^0.0.260"
 pyright = "^1.1.293"
 black = "^23.1.0"
 
