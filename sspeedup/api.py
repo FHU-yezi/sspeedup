@@ -5,43 +5,65 @@ from sspeedup.require import require
 
 
 class CODE(IntEnum):
+    """
+    状态码规范：
+
+    0：请求成功
+    1xx：请求成功，但有额外信息需要注意
+    4xx：客户端异常
+    5xx：服务端异常
+
+    第二位大类定义：
+
+    1：参数
+    2：响应
+    3：鉴权
+    4：配额
+    5：接口维护状态
+    6：流控
+    7：上游服务
+    8：服务器状态
+    9：保留
+    """
     SUCCESS = 0
 
-    DEPRECATED = 101
-    CLOSE_TO_QUOTA_LIMIT = 102
-    UPCOMING_MAINTENANCE = 103
+    CLOSE_TO_QUOTA_LIMIT = 141
+    DEPRECATED = 151
+    UPCOMING_MAINTENANCE = 181
 
-    MISSED_ARGUMENTS_OR_BAD_TYPES = 401
-    ARGUMENTS_CHECK_FAILED = 402
+    UNKNOWN_DATA_FORMAT = 411
+    BAD_ARGUMENTS = 412
+    BAD_TOKEN = 431
+    BANNED = 432
+    PERMISSION_DENIED = 433
+    API_QUOTA_REACHED = 441
+    RATE_LIMIT_BY_USER = 461
 
-    SERVER_OVERLOAD = 501
-    RATE_LIMIT = 502
-    SCHEDULED_OUTAGE = 503
-    UNSCHEDULED_OUTAGE = 504
-    BAD_TOKEN = 505
-    API_QUOTA_REACHED = 506
-    BANNED = 507
-    PERMISSION_DENIED = 508
+    RATE_LIMIT_GLOBAL = 561
+    SERVER_OVERLOAD = 581
+    SCHEDULED_OUTAGE = 582
+    UNSCHEDULED_OUTAGE = 583
 
 
 class MESSAGE(Enum):
     SUCCESS = ""
 
-    DEPRECATED = "该接口已被弃用，请尽快进行迁移"
     CLOSE_TO_QUOTA_LIMIT = "即将达到配额限制"
+    DEPRECATED = "该接口已被弃用"
     UPCOMING_MAINTENANCE = "即将进行维护"
 
-    MISSED_ARGUMENTS_OR_BAD_TYPES = "缺少参数或参数类型错误"
-    ARGUMENTS_CHECK_FAILED = "参数校验失败"
-
-    SERVER_OVERLOAD = "服务过载"
-    RATE_LIMIT = "限流"
-    SCHEDULED_OUTAGE = "计划内停机"
-    UNSCHEDULED_OUTAGE = "计划外停机"
+    UNKNOWN_DATA_FORMAT = "数据格式异常"
+    BAD_ARGUMENTS = "参数异常"
     BAD_TOKEN = "鉴权信息无效"  # noqa: S105
-    API_QUOTA_REACHED = "达到配额限制"
     BANNED = "服务禁用"
     PERMISSION_DENIED = "权限不足"
+    API_QUOTA_REACHED = "达到配额限制"
+    RATE_LIMIT_BY_USER = "用户端限流"
+
+    RATE_LIMIT_GLOBAL = "全局限流"
+    SERVER_OVERLOAD = "服务过载"
+    SCHEDULED_OUTAGE = "计划内停机"
+    UNSCHEDULED_OUTAGE = "计划外停机"
 
 
 def is_ok(code: CODE) -> bool:
