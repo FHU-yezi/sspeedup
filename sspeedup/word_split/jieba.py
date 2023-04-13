@@ -15,8 +15,7 @@ class JiebaSplitter(WordSplitter):
         pass
 
     def add_stopwords(self, word_list: Set[str]) -> None:
-        word_list_to_add: Set[str] = self._get_stopwords_need_to_process(word_list)
-        self.stopwords = self.stopwords.union(word_list_to_add)
+        self.stopwords = word_list
 
     def add_hotwords(self, word_list: Set[str]) -> None:
         word_list_to_add: Set[str] = self._get_hotwords_need_to_process(word_list)
@@ -27,11 +26,7 @@ class JiebaSplitter(WordSplitter):
 
     def add_stopwords_file(self, file_name: str) -> None:
         with open(file_name, encoding="utf-8") as f:
-            word_list_to_add = self._get_stopwords_need_to_process(
-                {x.strip() for x in f.readlines()},
-            )
-
-        self.stopwords = self.stopwords.union(word_list_to_add)
+            self.stopwords = {x.strip() for x in f.readlines()}
 
     def set_allowed_word_type(self, types: Set[str]) -> None:
         del types
@@ -60,8 +55,7 @@ class JiebaSearchSplitter(WordSplitter):
         pass
 
     def add_stopwords(self, word_list: Set[str]) -> None:
-        word_list_to_add: Set[str] = self._get_stopwords_need_to_process(word_list)
-        self.stopwords = self.stopwords.union(word_list_to_add)
+        self.stopwords = word_list
 
     def add_hotwords(self, word_list: Set[str]) -> None:
         word_list_to_add: Set[str] = self._get_hotwords_need_to_process(word_list)
@@ -76,11 +70,7 @@ class JiebaSearchSplitter(WordSplitter):
 
     def add_stopwords_file(self, file_name: str) -> None:
         with open(file_name, encoding="utf-8") as f:
-            word_list_to_add = self._get_stopwords_need_to_process(
-                {x.strip() for x in f.readlines()},
-            )
-
-        self.stopwords = self.stopwords.union(word_list_to_add)
+            self.stopwords = {x.strip() for x in f.readlines()}
 
     def add_hotwords_file(self, file_name: str) -> None:
         load_userdict(file_name)
@@ -105,8 +95,7 @@ class JiebaPossegSplitter(WordSplitter):
         pass
 
     def add_stopwords(self, word_list: Set[str]) -> None:
-        word_list_to_add: Set[str] = self._get_stopwords_need_to_process(word_list)
-        self.stopwords = self.stopwords.union(word_list_to_add)
+        self.stopwords = word_list
 
     def add_hotwords(self, word_list: Set[str]) -> None:
         word_list_to_add: Set[str] = self._get_hotwords_need_to_process(word_list)
@@ -120,11 +109,7 @@ class JiebaPossegSplitter(WordSplitter):
 
     def add_stopwords_file(self, file_name: str) -> None:
         with open(file_name, encoding="utf-8") as f:
-            word_list_to_add = self._get_stopwords_need_to_process(
-                {x.strip() for x in f.readlines()},
-            )
-
-        self.stopwords = self.stopwords.union(word_list_to_add)
+            self.stopwords = {x.strip() for x in f.readlines()}
 
     def add_hotwords_file(self, file_name: str) -> None:
         load_userdict(file_name)

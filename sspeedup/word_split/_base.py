@@ -59,9 +59,6 @@ class WordSplitter(ABC):
     def set_allowed_word_types_file(self, file_name: str) -> None:
         raise NotImplementedError
 
-    def _get_stopwords_need_to_process(self, word_list: Set[str]) -> Set[str]:
-        return word_list - self.stopwords
-
     def _get_hotwords_need_to_process(self, word_list: Set[str]) -> Set[str]:
         return word_list - self.hotwords
 
