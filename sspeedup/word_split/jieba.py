@@ -44,15 +44,15 @@ class JiebaSplitter(WordSplitter):
         del file_name
         raise NotImplementedError
 
-    def split(self, sentence: str) -> Generator[str, None, None]:
-        for word in cut(sentence):
+    def split(self, text: str) -> Generator[str, None, None]:
+        for word in cut(text):
             if word in self.stopwords:
                 continue
 
             yield word
 
-    def get_word_freq(self, sentence: str) -> Counter:
-        return Counter(x for x in cut(sentence) if x not in self.stopwords)
+    def get_word_freq(self, text: str) -> Counter:
+        return Counter(x for x in cut(text) if x not in self.stopwords)
 
 
 class JiebaSearchSplitter(WordSplitter):
@@ -89,15 +89,15 @@ class JiebaSearchSplitter(WordSplitter):
         del file_name
         raise NotImplementedError
 
-    def split(self, sentence: str) -> Generator[str, None, None]:
-        for word in cut_for_search(sentence):
+    def split(self, text: str) -> Generator[str, None, None]:
+        for word in cut_for_search(text):
             if word in self.stopwords:
                 continue
 
             yield word
 
-    def get_word_freq(self, sentence: str) -> Counter:
-        return Counter(x for x in cut_for_search(sentence) if x not in self.stopwords)
+    def get_word_freq(self, text: str) -> Counter:
+        return Counter(x for x in cut_for_search(text) if x not in self.stopwords)
 
 
 class JiebaPossegSplitter(WordSplitter):
@@ -133,8 +133,8 @@ class JiebaPossegSplitter(WordSplitter):
         with open(file_name, encoding="utf-8") as f:
             self.allowed_word_types = {x.strip() for x in f.readlines()}
 
-    def split(self, sentence: str) -> Generator[str, None, None]:
-        for pair in cut_poseg(sentence):
+    def split(self, text: str) -> Generator[str, None, None]:
+        for pair in cut_poseg(text):
             if pair.flag not in self.allowed_word_types:
                 continue
             if pair.word in self.stopwords:
@@ -142,9 +142,9 @@ class JiebaPossegSplitter(WordSplitter):
 
             yield pair.word
 
-    def get_word_freq(self, sentence: str) -> Counter:
+    def get_word_freq(self, text: str) -> Counter:
         return Counter(
             pair.word
-            for pair in cut_poseg(sentence)
+            for pair in cut_poseg(text)
             if pair.flag in self.allowed_word_types and pair.word not in self.stopwords
         )

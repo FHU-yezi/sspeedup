@@ -66,9 +66,9 @@ class WordSplitter(ABC):
         return word_list - self.hotwords
 
     @abstractmethod
-    def split(self, sentence: str) -> Generator[str, None, None]:
+    def split(self, text: str) -> Generator[str, None, None]:
         raise NotImplementedError
 
     @abstractmethod
-    def get_word_freq(self, sentence: str) -> Counter:
+    def get_word_freq(self, text: str) -> Counter:
         raise NotImplementedError
