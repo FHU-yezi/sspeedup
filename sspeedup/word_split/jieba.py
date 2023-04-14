@@ -15,8 +15,7 @@ class JiebaSplitter(WordSplitter):
         pass
 
     def add_stopwords(self, word_list: Set[str]) -> None:
-        word_list_to_add: Set[str] = self._get_stopwords_need_to_process(word_list)
-        self.stopwords = self.stopwords.union(word_list_to_add)
+        self.stopwords = word_list
 
     def add_hotwords(self, word_list: Set[str]) -> None:
         word_list_to_add: Set[str] = self._get_hotwords_need_to_process(word_list)
@@ -27,11 +26,7 @@ class JiebaSplitter(WordSplitter):
 
     def add_stopwords_file(self, file_name: str) -> None:
         with open(file_name, encoding="utf-8") as f:
-            word_list_to_add = self._get_stopwords_need_to_process(
-                {x.strip() for x in f.readlines()},
-            )
-
-        self.stopwords = self.stopwords.union(word_list_to_add)
+            self.stopwords = {x.strip() for x in f.readlines()}
 
     def set_allowed_word_type(self, types: Set[str]) -> None:
         del types
@@ -44,15 +39,15 @@ class JiebaSplitter(WordSplitter):
         del file_name
         raise NotImplementedError
 
-    def split(self, sentence: str) -> Generator[str, None, None]:
-        for word in cut(sentence):
+    def split(self, text: str) -> Generator[str, None, None]:
+        for word in cut(text):
             if word in self.stopwords:
                 continue
 
             yield word
 
-    def get_word_freq(self, sentence: str) -> Counter:
-        return Counter(x for x in cut(sentence) if x not in self.stopwords)
+    def get_word_freq(self, text: str) -> Counter:
+        return Counter(x for x in cut(text) if x not in self.stopwords)
 
 
 class JiebaSearchSplitter(WordSplitter):
@@ -60,8 +55,7 @@ class JiebaSearchSplitter(WordSplitter):
         pass
 
     def add_stopwords(self, word_list: Set[str]) -> None:
-        word_list_to_add: Set[str] = self._get_stopwords_need_to_process(word_list)
-        self.stopwords = self.stopwords.union(word_list_to_add)
+        self.stopwords = word_list
 
     def add_hotwords(self, word_list: Set[str]) -> None:
         word_list_to_add: Set[str] = self._get_hotwords_need_to_process(word_list)
@@ -76,11 +70,7 @@ class JiebaSearchSplitter(WordSplitter):
 
     def add_stopwords_file(self, file_name: str) -> None:
         with open(file_name, encoding="utf-8") as f:
-            word_list_to_add = self._get_stopwords_need_to_process(
-                {x.strip() for x in f.readlines()},
-            )
-
-        self.stopwords = self.stopwords.union(word_list_to_add)
+            self.stopwords = {x.strip() for x in f.readlines()}
 
     def add_hotwords_file(self, file_name: str) -> None:
         load_userdict(file_name)
@@ -89,15 +79,15 @@ class JiebaSearchSplitter(WordSplitter):
         del file_name
         raise NotImplementedError
 
-    def split(self, sentence: str) -> Generator[str, None, None]:
-        for word in cut_for_search(sentence):
+    def split(self, text: str) -> Generator[str, None, None]:
+        for word in cut_for_search(text):
             if word in self.stopwords:
                 continue
 
             yield word
 
-    def get_word_freq(self, sentence: str) -> Counter:
-        return Counter(x for x in cut_for_search(sentence) if x not in self.stopwords)
+    def get_word_freq(self, text: str) -> Counter:
+        return Counter(x for x in cut_for_search(text) if x not in self.stopwords)
 
 
 class JiebaPossegSplitter(WordSplitter):
@@ -105,8 +95,7 @@ class JiebaPossegSplitter(WordSplitter):
         pass
 
     def add_stopwords(self, word_list: Set[str]) -> None:
-        word_list_to_add: Set[str] = self._get_stopwords_need_to_process(word_list)
-        self.stopwords = self.stopwords.union(word_list_to_add)
+        self.stopwords = word_list
 
     def add_hotwords(self, word_list: Set[str]) -> None:
         word_list_to_add: Set[str] = self._get_hotwords_need_to_process(word_list)
@@ -120,11 +109,7 @@ class JiebaPossegSplitter(WordSplitter):
 
     def add_stopwords_file(self, file_name: str) -> None:
         with open(file_name, encoding="utf-8") as f:
-            word_list_to_add = self._get_stopwords_need_to_process(
-                {x.strip() for x in f.readlines()},
-            )
-
-        self.stopwords = self.stopwords.union(word_list_to_add)
+            self.stopwords = {x.strip() for x in f.readlines()}
 
     def add_hotwords_file(self, file_name: str) -> None:
         load_userdict(file_name)
@@ -133,8 +118,8 @@ class JiebaPossegSplitter(WordSplitter):
         with open(file_name, encoding="utf-8") as f:
             self.allowed_word_types = {x.strip() for x in f.readlines()}
 
-    def split(self, sentence: str) -> Generator[str, None, None]:
-        for pair in cut_poseg(sentence):
+    def split(self, text: str) -> Generator[str, None, None]:
+        for pair in cut_poseg(text):
             if pair.flag not in self.allowed_word_types:
                 continue
             if pair.word in self.stopwords:
@@ -142,9 +127,9 @@ class JiebaPossegSplitter(WordSplitter):
 
             yield pair.word
 
-    def get_word_freq(self, sentence: str) -> Counter:
+    def get_word_freq(self, text: str) -> Counter:
         return Counter(
             pair.word
-            for pair in cut_poseg(sentence)
+            for pair in cut_poseg(text)
             if pair.flag in self.allowed_word_types and pair.word not in self.stopwords
         )

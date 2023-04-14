@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sspeedup"
-version = "0.6.0"
+version = "0.7.0"
 description = "开发工具箱"
 authors = ["yezi <yehaowei20060411@qq.com>"]
 license = "MIT"
@@ -20,6 +20,7 @@ jieba = { version = "^0.42.1", optional = true }
 qrcode = { version = "^7.4.2", optional = true }
 pywebio = { version = "^1.7.1", optional = true }
 sanic = { version = "^23.3.0", optional = true }
+httpx = { version = "^0.24.0", optional = true }
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.0.260"
@@ -32,6 +33,7 @@ word-split-jieba = ["jieba"]
 qrcode = ["qrcode"]
 pywebio = ["pywebio"]
 api-response-sanic = ["sanic"]
+anbility-word-split = ["httpx"]
 
 [build-system]
 requires = ["poetry-core"]
