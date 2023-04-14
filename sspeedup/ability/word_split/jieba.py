@@ -9,7 +9,7 @@ from sspeedup.ability.word_split._base import AbilitySplitter
 HTTPX_CLIENT = Client(timeout=20)
 
 
-class AbilityJiebaSplitter(AbilitySplitter):
+class AbilityJiebaSplitterV1(AbilitySplitter):
     def init(self) -> None:
         pass
 
@@ -85,7 +85,7 @@ class AbilityJiebaSplitter(AbilitySplitter):
             }
         )
 
-class AbilityJiebaSearchSplitter(AbilitySplitter):
+class AbilityJiebaSearchSplitterV1(AbilitySplitter):
     def init(self) -> None:
         pass
 
@@ -161,7 +161,7 @@ class AbilityJiebaSearchSplitter(AbilitySplitter):
             }
         )
 
-class AbilityJiebaPossegSplitter(AbilitySplitter):
+class AbilityJiebaPossegSplitterV1(AbilitySplitter):
     def init(self) -> None:
         pass
 
