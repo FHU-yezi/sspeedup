@@ -85,6 +85,7 @@ class AbilityJiebaSplitterV1(AbilitySplitter):
             }
         )
 
+
 class AbilityJiebaSearchSplitterV1(AbilitySplitter):
     def init(self) -> None:
         pass
@@ -160,6 +161,7 @@ class AbilityJiebaSearchSplitterV1(AbilitySplitter):
                 if key not in self.stopwords
             }
         )
+
 
 class AbilityJiebaPossegSplitterV1(AbilitySplitter):
     def init(self) -> None:
