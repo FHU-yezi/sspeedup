@@ -25,6 +25,7 @@ class CODE(IntEnum):
     8：服务器状态
     9：保留
     """
+
     SUCCESS = 0
 
     CLOSE_TO_QUOTA_LIMIT = 141
