@@ -1,12 +1,8 @@
 from collections import Counter
 from typing import Any, Dict, Generator, Set
 
-from httpx import Client
-
 from sspeedup.ability.exceptions import AbilityCallHTTPError, AbilityCallServiceError
 from sspeedup.ability.word_split._base import AbilitySplitter
-
-HTTPX_CLIENT = Client(timeout=20)
 
 
 class AbilityJiebaSplitterV1(AbilitySplitter):
@@ -34,13 +30,11 @@ class AbilityJiebaSplitterV1(AbilitySplitter):
         raise NotImplementedError
 
     def split(self, text: str) -> Generator[str, None, None]:
-        url = self.api_route + "/split/normal"
         data: Dict[str, Any] = {
             "library": "jieba",
             "text": text,
         }
-
-        response = HTTPX_CLIENT.post(url=url, json=data)
+        response = self.client.post(url="/v1/split/normal", json=data)
 
         if response.status_code != 200:
             raise AbilityCallHTTPError(code=response.status_code)
@@ -58,13 +52,11 @@ class AbilityJiebaSplitterV1(AbilitySplitter):
         )
 
     def get_word_freq(self, text: str) -> Counter:
-        url = self.api_route + "/freq/normal"
         data: Dict[str, Any] = {
             "library": "jieba",
             "text": text,
         }
-
-        response = HTTPX_CLIENT.post(url=url, json=data)
+        response = self.client.post(url="/v1/freq/normal", json=data)
 
         if response.status_code != 200:
             raise AbilityCallHTTPError(code=response.status_code)
@@ -111,13 +103,11 @@ class AbilityJiebaSearchSplitterV1(AbilitySplitter):
         raise NotImplementedError
 
     def split(self, text: str) -> Generator[str, None, None]:
-        url = self.api_route + "/split/search"
         data: Dict[str, Any] = {
             "library": "jieba",
             "text": text,
         }
-
-        response = HTTPX_CLIENT.post(url=url, json=data)
+        response = self.client.post(url="/v1/split/search", json=data)
 
         if response.status_code != 200:
             raise AbilityCallHTTPError(code=response.status_code)
@@ -135,13 +125,11 @@ class AbilityJiebaSearchSplitterV1(AbilitySplitter):
         )
 
     def get_word_freq(self, text: str) -> Counter:
-        url = self.api_route + "/freq/search"
         data: Dict[str, Any] = {
             "library": "jieba",
             "text": text,
         }
-
-        response = HTTPX_CLIENT.post(url=url, json=data)
+        response = self.client.post(url="/v1/freq/search", json=data)
 
         if response.status_code != 200:
             raise AbilityCallHTTPError(code=response.status_code)
@@ -187,15 +175,13 @@ class AbilityJiebaPossegSplitterV1(AbilitySplitter):
             self.allowed_word_types = {x.strip() for x in f.readlines()}
 
     def split(self, text: str) -> Generator[str, None, None]:
-        url = self.api_route + "/split/posseg"
         data: Dict[str, Any] = {
             "library": "jieba",
             "text": text,
         }
         if self.allowed_word_types:
             data["allowed_word_types"] = tuple(self.allowed_word_types)
-
-        response = HTTPX_CLIENT.post(url=url, json=data)
+        response = self.client.post(url="/v1/split/posseg", json=data)
 
         if response.status_code != 200:
             raise AbilityCallHTTPError(code=response.status_code)
@@ -213,15 +199,13 @@ class AbilityJiebaPossegSplitterV1(AbilitySplitter):
         )
 
     def get_word_freq(self, text: str) -> Counter:
-        url = self.api_route + "/freq/posseg"
         data: Dict[str, Any] = {
             "library": "jieba",
             "text": text,
         }
         if self.allowed_word_types:
             data["allowed_word_types"] = tuple(self.allowed_word_types)
-
-        response = HTTPX_CLIENT.post(url=url, json=data)
+        response = self.client.post(url="/v1/freq/posseg", json=data)
 
         if response.status_code != 200:
             raise AbilityCallHTTPError(code=response.status_code)

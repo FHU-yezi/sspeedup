@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 from collections import Counter
 from typing import Generator, Optional, Set
 
+from httpx import Client
+
 
 class AbilitySplitter(ABC):
     def __init__(
@@ -14,9 +16,10 @@ class AbilitySplitter(ABC):
         stopwords_file: Optional[str] = None,
         allowed_word_types_file: Optional[str] = None,
     ) -> None:
-        self.host = host
-        self.port = port
-        self.https_enabled = https
+        self.client = Client(
+            base_url=f"{'https' if https else 'http'}://{host}:{port}/api",
+            timeout=20,
+        )
         self.stopwords: Set[str] = set()
         self.allowed_word_types: Set[str] = set()
 
@@ -29,10 +32,6 @@ class AbilitySplitter(ABC):
             self.add_stopwords_file(stopwords_file)
         if allowed_word_types_file:
             self.set_allowed_word_types_file(allowed_word_types_file)
-
-    @property
-    def api_route(self) -> str:
-        return f"{'https' if self.https_enabled else 'http'}://{self.host}:{self.port}/api/v1"
 
     @abstractmethod
     def init(self) -> None:
