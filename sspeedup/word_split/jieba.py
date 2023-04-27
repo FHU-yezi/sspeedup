@@ -41,13 +41,13 @@ class JiebaSplitter(WordSplitter):
 
     def split(self, text: str) -> Generator[str, None, None]:
         for word in cut(text):
-            if word in self.stopwords:
+            if len(word) == 1 or word in self.stopwords:
                 continue
 
             yield word
 
     def get_word_freq(self, text: str) -> Counter:
-        return Counter(x for x in cut(text) if x not in self.stopwords)
+        return Counter(x for x in cut(text) if len(x) != 1 and x not in self.stopwords)
 
 
 class JiebaSearchSplitter(WordSplitter):
@@ -81,13 +81,15 @@ class JiebaSearchSplitter(WordSplitter):
 
     def split(self, text: str) -> Generator[str, None, None]:
         for word in cut_for_search(text):
-            if word in self.stopwords:
+            if len(word) == 1 or word in self.stopwords:
                 continue
 
             yield word
 
     def get_word_freq(self, text: str) -> Counter:
-        return Counter(x for x in cut_for_search(text) if x not in self.stopwords)
+        return Counter(
+            x for x in cut_for_search(text) if len(x) != 1 and x not in self.stopwords
+        )
 
 
 class JiebaPossegSplitter(WordSplitter):
@@ -120,9 +122,11 @@ class JiebaPossegSplitter(WordSplitter):
 
     def split(self, text: str) -> Generator[str, None, None]:
         for pair in cut_poseg(text):
-            if pair.flag not in self.allowed_word_types:
-                continue
-            if pair.word in self.stopwords:
+            if (
+                len(pair.word) == 1
+                or pair.flag not in self.allowed_word_types
+                or pair.word in self.stopwords
+            ):
                 continue
 
             yield pair.word
@@ -131,5 +135,7 @@ class JiebaPossegSplitter(WordSplitter):
         return Counter(
             pair.word
             for pair in cut_poseg(text)
-            if pair.flag in self.allowed_word_types and pair.word not in self.stopwords
+            if len(pair.word) != 1
+            and pair.flag in self.allowed_word_types
+            and pair.word not in self.stopwords
         )
