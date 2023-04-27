@@ -11,7 +11,7 @@ class AbilityJiebaSplitterV1(AbilitySplitter):
 
     def add_stopwords(self, word_list: Set[str]) -> None:
         word_list_to_add: Set[str] = self._get_stopwords_need_to_process(word_list)
-        self.stopwords = word_list_to_add
+        self._stopwords = word_list_to_add
 
     def add_stopwords_file(self, file_name: str) -> None:
         with open(file_name, encoding="utf-8") as f:
@@ -19,7 +19,7 @@ class AbilityJiebaSplitterV1(AbilitySplitter):
                 {x.strip() for x in f.readlines()},
             )
 
-        self.stopwords = self.stopwords.union(word_list_to_add)
+        self._stopwords = self._stopwords.union(word_list_to_add)
 
     def set_allowed_word_type(self, types: Set[str]) -> None:
         del types
@@ -34,7 +34,7 @@ class AbilityJiebaSplitterV1(AbilitySplitter):
             "library": "jieba",
             "text": text,
         }
-        response = self.client.post(url="/v1/split/normal", json=data)
+        response = self._client.post(url="/v1/split/normal", json=data)
 
         if response.status_code != 200:
             raise AbilityCallHTTPError(code=response.status_code)
@@ -48,7 +48,7 @@ class AbilityJiebaSplitterV1(AbilitySplitter):
             )
 
         yield from (
-            x for x in response_json["data"]["splitted_text"] if x not in self.stopwords
+            x for x in response_json["data"]["splitted_text"] if x not in self._stopwords
         )
 
     def get_word_freq(self, text: str) -> Counter:
@@ -56,7 +56,7 @@ class AbilityJiebaSplitterV1(AbilitySplitter):
             "library": "jieba",
             "text": text,
         }
-        response = self.client.post(url="/v1/freq/normal", json=data)
+        response = self._client.post(url="/v1/freq/normal", json=data)
 
         if response.status_code != 200:
             raise AbilityCallHTTPError(code=response.status_code)
@@ -73,7 +73,7 @@ class AbilityJiebaSplitterV1(AbilitySplitter):
             {
                 key: value
                 for key, value in response_json["data"]["word_freq"].items()
-                if key not in self.stopwords
+                if key not in self._stopwords
             }
         )
 
@@ -84,7 +84,7 @@ class AbilityJiebaSearchSplitterV1(AbilitySplitter):
 
     def add_stopwords(self, word_list: Set[str]) -> None:
         word_list_to_add: Set[str] = self._get_stopwords_need_to_process(word_list)
-        self.stopwords = word_list_to_add
+        self._stopwords = word_list_to_add
 
     def add_stopwords_file(self, file_name: str) -> None:
         with open(file_name, encoding="utf-8") as f:
@@ -92,7 +92,7 @@ class AbilityJiebaSearchSplitterV1(AbilitySplitter):
                 {x.strip() for x in f.readlines()},
             )
 
-        self.stopwords = self.stopwords.union(word_list_to_add)
+        self._stopwords = self._stopwords.union(word_list_to_add)
 
     def set_allowed_word_type(self, types: Set[str]) -> None:
         del types
@@ -107,7 +107,7 @@ class AbilityJiebaSearchSplitterV1(AbilitySplitter):
             "library": "jieba",
             "text": text,
         }
-        response = self.client.post(url="/v1/split/search", json=data)
+        response = self._client.post(url="/v1/split/search", json=data)
 
         if response.status_code != 200:
             raise AbilityCallHTTPError(code=response.status_code)
@@ -121,7 +121,7 @@ class AbilityJiebaSearchSplitterV1(AbilitySplitter):
             )
 
         yield from (
-            x for x in response_json["data"]["splitted_text"] if x not in self.stopwords
+            x for x in response_json["data"]["splitted_text"] if x not in self._stopwords
         )
 
     def get_word_freq(self, text: str) -> Counter:
@@ -129,7 +129,7 @@ class AbilityJiebaSearchSplitterV1(AbilitySplitter):
             "library": "jieba",
             "text": text,
         }
-        response = self.client.post(url="/v1/freq/search", json=data)
+        response = self._client.post(url="/v1/freq/search", json=data)
 
         if response.status_code != 200:
             raise AbilityCallHTTPError(code=response.status_code)
@@ -146,7 +146,7 @@ class AbilityJiebaSearchSplitterV1(AbilitySplitter):
             {
                 key: value
                 for key, value in response_json["data"]["word_freq"].items()
-                if key not in self.stopwords
+                if key not in self._stopwords
             }
         )
 
@@ -157,7 +157,7 @@ class AbilityJiebaPossegSplitterV1(AbilitySplitter):
 
     def add_stopwords(self, word_list: Set[str]) -> None:
         word_list_to_add: Set[str] = self._get_stopwords_need_to_process(word_list)
-        self.stopwords = word_list_to_add
+        self._stopwords = word_list_to_add
 
     def add_stopwords_file(self, file_name: str) -> None:
         with open(file_name, encoding="utf-8") as f:
@@ -165,23 +165,23 @@ class AbilityJiebaPossegSplitterV1(AbilitySplitter):
                 {x.strip() for x in f.readlines()},
             )
 
-        self.stopwords = self.stopwords.union(word_list_to_add)
+        self._stopwords = self._stopwords.union(word_list_to_add)
 
     def set_allowed_word_type(self, types: Set[str]) -> None:
-        self.allowed_word_types = types
+        self._allowed_word_types = types
 
     def set_allowed_word_types_file(self, file_name: str) -> None:
         with open(file_name, encoding="utf-8") as f:
-            self.allowed_word_types = {x.strip() for x in f.readlines()}
+            self._allowed_word_types = {x.strip() for x in f.readlines()}
 
     def split(self, text: str) -> Generator[str, None, None]:
         data: Dict[str, Any] = {
             "library": "jieba",
             "text": text,
         }
-        if self.allowed_word_types:
-            data["allowed_word_types"] = tuple(self.allowed_word_types)
-        response = self.client.post(url="/v1/split/posseg", json=data)
+        if self._allowed_word_types:
+            data["allowed_word_types"] = tuple(self._allowed_word_types)
+        response = self._client.post(url="/v1/split/posseg", json=data)
 
         if response.status_code != 200:
             raise AbilityCallHTTPError(code=response.status_code)
@@ -195,7 +195,7 @@ class AbilityJiebaPossegSplitterV1(AbilitySplitter):
             )
 
         yield from (
-            x for x in response_json["data"]["splitted_text"] if x not in self.stopwords
+            x for x in response_json["data"]["splitted_text"] if x not in self._stopwords
         )
 
     def get_word_freq(self, text: str) -> Counter:
@@ -203,9 +203,9 @@ class AbilityJiebaPossegSplitterV1(AbilitySplitter):
             "library": "jieba",
             "text": text,
         }
-        if self.allowed_word_types:
-            data["allowed_word_types"] = tuple(self.allowed_word_types)
-        response = self.client.post(url="/v1/freq/posseg", json=data)
+        if self._allowed_word_types:
+            data["allowed_word_types"] = tuple(self._allowed_word_types)
+        response = self._client.post(url="/v1/freq/posseg", json=data)
 
         if response.status_code != 200:
             raise AbilityCallHTTPError(code=response.status_code)
@@ -222,6 +222,6 @@ class AbilityJiebaPossegSplitterV1(AbilitySplitter):
             {
                 key: value
                 for key, value in response_json["data"]["word_freq"].items()
-                if key not in self.stopwords
+                if key not in self._stopwords
             }
         )

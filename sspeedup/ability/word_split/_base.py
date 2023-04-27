@@ -16,12 +16,12 @@ class AbilitySplitter(ABC):
         stopwords_file: Optional[str] = None,
         allowed_word_types_file: Optional[str] = None,
     ) -> None:
-        self.client = Client(
+        self._client = Client(
             base_url=f"{'https' if https else 'http'}://{host}:{port}/api",
             timeout=20,
         )
-        self.stopwords: Set[str] = set()
-        self.allowed_word_types: Set[str] = set()
+        self._stopwords: Set[str] = set()
+        self._allowed_word_types: Set[str] = set()
 
         if stopwords:
             self.add_stopwords(stopwords)
@@ -54,7 +54,7 @@ class AbilitySplitter(ABC):
         raise NotImplementedError
 
     def _get_stopwords_need_to_process(self, word_list: Set[str]) -> Set[str]:
-        return word_list - self.stopwords
+        return word_list - self._stopwords
 
     @abstractmethod
     def split(self, text: str) -> Generator[str, None, None]:
