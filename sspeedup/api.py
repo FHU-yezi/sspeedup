@@ -97,5 +97,6 @@ def sanic_response_json(  # noqa: ANN201
             code=code,
             message=message,
             data=data,
-        )
+        ),
+        headers={"Content-Type": "application/json"},
     )
