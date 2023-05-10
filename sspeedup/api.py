@@ -1,6 +1,8 @@
 from enum import Enum, IntEnum
 from typing import Any, Dict, Optional
 
+from ujson import dumps
+
 from sspeedup.require import require
 
 
@@ -99,4 +101,5 @@ def sanic_response_json(  # noqa: ANN201
             data=data,
         ),
         headers={"Content-Type": "application/json"},
+        dumps=lambda x: dumps(x, ensure_ascii=False, allow_nan=False),
     )
