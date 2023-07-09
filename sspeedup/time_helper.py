@@ -1,5 +1,5 @@
 from datetime import date, datetime, timedelta
-from typing import Dict, List, Tuple
+from typing import Dict, List, Optional, Tuple
 
 PERIODS: List[Tuple[str, int]] = [
     ("年", 60 * 60 * 24 * 365),
@@ -74,3 +74,22 @@ def cron_str_to_kwargs(cron: str) -> Dict[str, str]:
         "month": month,
         "day_of_week": day_of_week,
     }
+
+def get_start_time(td: Optional[timedelta] = None) -> datetime:
+    """根据当前时间获取起始时间，当参数 td 为 None 时返回 1970-1-1
+
+    Args:
+        td (Optional[timedelta], optional): 与现在的时间差. Defaults to None.
+
+    Returns:
+        datetime: 起始时间
+    """
+    return (
+        datetime.now() - td
+        if td
+        else datetime(
+            year=1970,
+            month=1,
+            day=1,
+        )
+    )
