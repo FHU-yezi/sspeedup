@@ -1,3 +1,4 @@
+from traceback import print_exception
 from typing import Any, Dict, Generic, List, Optional, TypeVar, cast
 
 from litestar import Request, Response
@@ -99,6 +100,8 @@ def internal_server_exception_handler(
                 return Response(
                     get_response_struct(code=Code.DESERIALIZE_FAILED), status_code=400
                 )
+
+    print_exception(exception)
 
     return Response(
         get_response_struct(
