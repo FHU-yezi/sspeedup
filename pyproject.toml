@@ -39,11 +39,8 @@ pywebio = ["pywebio"]
 
 ability-word-split = ["httpx"]
 
-api-sanic = ["sanic", "ujson"]
-api-litestar = ["litestar"]
-
-validation-pydantic = ["pydantic"]
-validation-msgspec = ["msgspec"]
+api-sanic = ["sanic", "pydantic", "ujson"]
+api-litestar = ["litestar", "msgspec"]
 
 [build-system]
 requires = ["poetry-core"]

@@ -1400,16 +1400,14 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 
 [extras]
 ability-word-split = ["httpx"]
-api-litestar = ["litestar"]
-api-response-sanic = ["sanic", "ujson"]
-data-validation = ["pydantic"]
+api-litestar = ["litestar", "msgspec"]
+api-sanic = ["pydantic", "sanic", "ujson"]
 logging = ["pymongo"]
 pywebio = ["pywebio"]
 qrcode = ["qrcode"]
-validation-msgspec = ["msgspec"]
 word-split-jieba = ["jieba"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "1a2441fec782cc4019a77bef7dc0b008734a7f06b815969a1d2a51a9aaf72b26"
+content-hash = "cbc54c884f957842ae980584ee59e78d64edff6ff9d8f2c8a66a03267c0da6b6"
