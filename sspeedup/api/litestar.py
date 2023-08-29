@@ -10,11 +10,11 @@ from sspeedup.api.code import Code, get_default_msg, is_ok
 _T = TypeVar("_T")
 
 
-class RequestBase(Struct, kw_only=True, forbid_unknown_fields=True):
+class RequestBase(Struct, kw_only=True, forbid_unknown_fields=True, rename="camel"):
     pass
 
 
-class ResponseBase(Struct, kw_only=True):
+class ResponseBase(Struct, kw_only=True, rename="camel"):
     pass
 
 
