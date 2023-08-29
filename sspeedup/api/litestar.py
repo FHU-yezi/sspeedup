@@ -2,6 +2,10 @@ from typing import Any, Dict, Generic, List, Optional, TypeVar, cast
 
 from litestar import Request, Response
 from litestar.exceptions import ValidationException
+from litestar.exceptions.http_exceptions import (
+    MethodNotAllowedException,
+    NotFoundException,
+)
 from litestar.types import ExceptionHandlersMap
 from msgspec import Struct
 
@@ -10,11 +14,11 @@ from sspeedup.api.code import Code, get_default_msg, is_ok
 _T = TypeVar("_T")
 
 
-class RequestBase(Struct, kw_only=True, forbid_unknown_fields=True):
+class RequestBase(Struct, kw_only=True, forbid_unknown_fields=True, rename="camel"):
     pass
 
 
-class ResponseBase(Struct, kw_only=True):
+class ResponseBase(Struct, kw_only=True, rename="camel"):
     pass
 
 
@@ -69,6 +73,16 @@ def validation_exception_handler(
     )
 
 
+def not_found_exception_handler(_: Request, exception: Exception) -> Response[None]:
+    return Response(None, status_code=404)
+
+
+def method_not_allowd_exception_handler(
+    _: Request, exception: Exception
+) -> Response[None]:
+    return Response(None, status_code=405)
+
+
 _DESERIALIZE_FAILED_ARGS_STRING = {
     "400: Input data was truncated",
     "400: JSON is malformed",
@@ -96,5 +110,7 @@ def internal_server_exception_handler(
 
 EXCEPTION_HANDLERS: ExceptionHandlersMap = {
     ValidationException: validation_exception_handler,
+    NotFoundException: not_found_exception_handler,
+    MethodNotAllowedException: method_not_allowd_exception_handler,
     Exception: internal_server_exception_handler,
 }
