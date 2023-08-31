@@ -83,14 +83,14 @@ def validation_exception_handler(
     )
 
 
-def not_found_exception_handler(_: Request, exception: Exception) -> Response[None]:
-    return Response(None, status_code=404)
+def not_found_exception_handler(_: Request, exception: Exception) -> Response[bytes]:
+    return Response(b"", status_code=404)
 
 
 def method_not_allowd_exception_handler(
     _: Request, exception: Exception
-) -> Response[None]:
-    return Response(None, status_code=405)
+) -> Response[bytes]:
+    return Response(b"", status_code=405)
 
 
 _DESERIALIZE_FAILED_ARGS_STRING = {
