@@ -1,3 +1,4 @@
+from enum import Enum
 from traceback import print_exception
 from typing import Any, Dict, Generic, List, Optional, TypeVar, cast
 
@@ -14,13 +15,17 @@ from sspeedup.api.code import Code, get_default_msg, is_ok
 
 _T = TypeVar("_T")
 
+REQUEST_STRUCT_CONFIG: Dict[str, Any] = {
+    "frozen": True,
+    "kw_only": True,
+    "forbid_unknown_fields": True,
+    "rename": "camel",
+}
 
-class RequestBase(Struct, kw_only=True, forbid_unknown_fields=True, rename="camel"):
-    pass
-
-
-class ResponseBase(Struct, kw_only=True, rename="camel"):
-    pass
+RESPONSE_STRUCT_CONFIG: Dict[str, Any] = {
+    "kw_only": True,
+    "rename": "camel",
+}
 
 
 class ResponseStruct(Struct, Generic[_T], frozen=True, kw_only=True):
@@ -55,7 +60,11 @@ def _format_validation_errors(
 
     result: List[str] = ["数据校验失败："]
     for item in extra:
-        result.append(f"{item['key']}（{item['source'].value}）：{item['message']}")
+        result.append(
+            f"{item['key']}"
+            f"（{item['source'].value if isinstance(item['source'], Enum) else item['source']}）："
+            f"{item['message']}"
+        )
 
     return "\n".join(result)
 
@@ -74,14 +83,14 @@ def validation_exception_handler(
     )
 
 
-def not_found_exception_handler(_: Request, exception: Exception) -> Response[None]:
-    return Response(None, status_code=404)
+def not_found_exception_handler(_: Request, exception: Exception) -> Response[bytes]:
+    return Response(b"", status_code=404)
 
 
 def method_not_allowd_exception_handler(
     _: Request, exception: Exception
-) -> Response[None]:
-    return Response(None, status_code=405)
+) -> Response[bytes]:
+    return Response(b"", status_code=405)
 
 
 _DESERIALIZE_FAILED_ARGS_STRING = {
