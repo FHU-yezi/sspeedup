@@ -14,13 +14,17 @@ from sspeedup.api.code import Code, get_default_msg, is_ok
 
 _T = TypeVar("_T")
 
+REQUEST_STRUCT_CONFIG: Dict[str, Any] = {
+    "frozen": True,
+    "kw_only": True,
+    "forbid_unknown_fields": True,
+    "rename": "camel",
+}
 
-class RequestBase(Struct, kw_only=True, forbid_unknown_fields=True, rename="camel"):
-    pass
-
-
-class ResponseBase(Struct, kw_only=True, rename="camel"):
-    pass
+RESPONSE_STRUCT_CONFIG: Dict[str, Any] = {
+    "kw_only": True,
+    "rename": "camel",
+}
 
 
 class ResponseStruct(Struct, Generic[_T], frozen=True, kw_only=True):
