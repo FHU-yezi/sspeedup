@@ -1,3 +1,4 @@
+from enum import Enum
 from traceback import print_exception
 from typing import Any, Dict, Generic, List, Optional, TypeVar, cast
 
@@ -59,7 +60,11 @@ def _format_validation_errors(
 
     result: List[str] = ["数据校验失败："]
     for item in extra:
-        result.append(f"{item['key']}（{item['source'].value}）：{item['message']}")
+        result.append(
+            f"{item['key']}"
+            f"（{item['source'].value if isinstance(item['source'], Enum) else item['source']}）："
+            f"{item['message']}"
+        )
 
     return "\n".join(result)
 
