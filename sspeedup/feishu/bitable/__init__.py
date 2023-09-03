@@ -1,7 +1,7 @@
 from typing import Any, AsyncGenerator, Dict, Generic, Optional, Sequence, TypeVar
 
 from httpx import AsyncClient
-from msgspec import convert, to_builtins
+from msgspec import Struct, convert, to_builtins
 
 from sspeedup.feishu.auth import FeishuAuthToken
 from sspeedup.feishu.bitable.structs import _BitableRecord
@@ -78,7 +78,7 @@ class Bitable(Generic[_T]):
             if not has_more:
                 return
 
-    async def add_record(self, record: _T) -> None:
+    async def add_record(self, record: Struct) -> None:
         headers = {"Authorization": f"Bearer {await self._auth_token.get_token()}"}
         data = {
             "fields": to_builtins(record),
