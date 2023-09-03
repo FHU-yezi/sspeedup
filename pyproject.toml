@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sspeedup"
-version = "0.16.0"
+version = "0.17.0"
 description = "开发工具箱"
 authors = ["yezi <yehaowei20060411@qq.com>"]
 license = "MIT"
@@ -36,6 +36,8 @@ logging = ["pymongo"]
 word-split-jieba = ["jieba"]
 qrcode = ["qrcode"]
 pywebio = ["pywebio"]
+feishu-auth = ["httpx"]
+feishu-bitable = ["httpx", "msgspec"]
 
 ability-word-split = ["httpx"]
 
