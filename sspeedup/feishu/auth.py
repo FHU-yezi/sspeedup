@@ -19,8 +19,7 @@ class FeishuAuthToken:
         self._token: Optional[str] = None
         self._token_expire_time: Optional[datetime] = None
 
-    @property
-    async def token(self) -> str:
+    async def get_token(self) -> str:
         # 如果缓存了 Token，且 Token 距离过期还有半个小时以上
         # 此时再次请求会返回相同的 Token，故直接从缓存中返回
         if (
