@@ -1,5 +1,6 @@
 from enum import Enum
 from sys import stdout
+from typing import Union
 
 COLOR_RESET = "\033[0m"
 
@@ -37,6 +38,10 @@ def colorful_print(
     print(*values, sep=sep, end="")
     stdout.write(COLOR_RESET)
     stdout.write(end)
+
+
+def with_color(msg: str, color: Union[str, ForegroundColor, BackgroundColor]) -> str:
+    return f"{color if isinstance(color, str) else color.value}{msg}{COLOR_RESET}"
 
 
 def print_black(*values: object, sep: str = "", end: str = "\n") -> None:

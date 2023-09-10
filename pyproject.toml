@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sspeedup"
-version = "0.19.0"
+version = "0.20.0"
 description = "开发工具箱"
 authors = ["yezi <yehaowei20060411@qq.com>"]
 license = "MIT"
@@ -16,6 +16,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.8"
 pymongo = { version = "^4.3.3", optional = true }
+motor = { version ="^3.3.1", optional = true }
 jieba = { version = "^0.42.1", optional = true }
 qrcode = { version = "^7.4.2", optional = true }
 pywebio = { version = "^1.8.2", optional = true }
@@ -32,7 +33,6 @@ pyright = "^1.1.316"
 black = "^23.1.0"
 
 [tool.poetry.extras]
-logging = ["pymongo"]
 config = ["msgspec"]
 word-split-jieba = ["jieba"]
 qrcode = ["qrcode"]

@@ -112,7 +112,7 @@ files = [
 name = "dnspython"
 version = "2.4.2"
 description = "DNS toolkit"
-optional = true
+optional = false
 python-versions = ">=3.8,<4.0"
 files = [
     {file = "dnspython-2.4.2-py3-none-any.whl", hash = "sha256:57c6fbaaeaaf39c891292012060beb141791735dbb4004798328fc2c467402d8"},
@@ -394,6 +394,30 @@ redis = ["redis[hiredis] (>=4.4.4,<4.5.0)"]
 sqlalchemy = ["alembic", "sqlalchemy (>=2.0.12)"]
 standard = ["click", "jinja2 (>=3.1.2)", "jsbeautifier", "rich (>=13.0.0)", "rich-click", "uvicorn[standard] (>=0.22.0)"]
 structlog = ["structlog"]
+
+[[package]]
+name = "motor"
+version = "3.3.1"
+description = "Non-blocking MongoDB driver for Tornado or asyncio"
+optional = false
+python-versions = ">=3.7"
+files = [
+    {file = "motor-3.3.1-py3-none-any.whl", hash = "sha256:a0dee83ad0d47b353932ac37467ba397b1e649ce7e3eea7f5a90554883d7cdbe"},
+    {file = "motor-3.3.1.tar.gz", hash = "sha256:c5eb400e27d722a3db03a9826656b6d13acf9b6c70c2fb4604f474eac9da5be4"},
+]
+
+[package.dependencies]
+pymongo = ">=4.5,<5"
+
+[package.extras]
+aws = ["pymongo[aws] (>=4.5,<5)"]
+encryption = ["pymongo[encryption] (>=4.5,<5)"]
+gssapi = ["pymongo[gssapi] (>=4.5,<5)"]
+ocsp = ["pymongo[ocsp] (>=4.5,<5)"]
+snappy = ["pymongo[snappy] (>=4.5,<5)"]
+srv = ["pymongo[srv] (>=4.5,<5)"]
+test = ["aiohttp", "mockupdb", "motor[encryption]", "pytest (>=7)", "tornado (>=5)"]
+zstd = ["pymongo[zstd] (>=4.5,<5)"]
 
 [[package]]
 name = "msgspec"
@@ -749,7 +773,7 @@ typing-extensions = ">=4.6.0,<4.7.0 || >4.7.0"
 name = "pymongo"
 version = "4.5.0"
 description = "Python driver for MongoDB <http://www.mongodb.org>"
-optional = true
+optional = false
 python-versions = ">=3.7"
 files = [
     {file = "pymongo-4.5.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:2d4fa1b01fa7e5b7bb8d312e3542e211b320eb7a4e3d8dc884327039d93cb9e0"},
@@ -1392,9 +1416,9 @@ testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "p
 ability-word-split = ["httpx"]
 api-litestar = ["litestar", "msgspec"]
 api-sanic = ["pydantic", "sanic", "ujson"]
+config = ["msgspec"]
 feishu-auth = ["httpx"]
 feishu-bitable = ["httpx", "msgspec"]
-logging = ["pymongo"]
 pywebio = ["pywebio"]
 qrcode = ["qrcode"]
 word-split-jieba = ["jieba"]
@@ -1402,4 +1426,4 @@ word-split-jieba = ["jieba"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.8"
-content-hash = "de5c9315f104ff5ef51f0b7aab3834392949f827718353eb98b9d07394440d47"
+content-hash = "82cdc220938b60991098d9a5d6d63272eaacc2bc1b84b13c97ad2535ca14f0cb"
