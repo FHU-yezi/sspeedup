@@ -1,4 +1,4 @@
-from typing import Any, Dict
+from typing import Any, Dict, Literal
 
 from msgspec import Struct
 
@@ -21,6 +21,9 @@ class DeployConfig(Struct, **CONFIG_STRUCT_CONFIG):
     version: str = "v0.1.0"
     host: str = "0.0.0.0"
     port: int = 8080
+    uvicorn_log_level: Literal[
+        "critical", "error", "warning", "info", "debug", "trace"
+    ] = "info"
     workers: int = 1
     reload: bool = False
     access_log: bool = False

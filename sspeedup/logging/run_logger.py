@@ -9,7 +9,7 @@ from sys import argv as sys_argv
 from threading import Thread
 from threading import current_thread as get_current_thread
 from time import sleep
-from traceback import format_exception, format_stack
+from traceback import format_exception
 from typing import Any, Dict, List, Optional, Union
 
 from msgspec import Struct
