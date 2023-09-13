@@ -147,40 +147,44 @@ class RunLogger:
             atexit_register(self._at_exit_handler)
 
     def _print_log(self, obj: _LogRecord) -> None:
-        log_lines: List[str] = []
+        log_line: List[str] = []
+        extra_lines: List[str] = []
 
         # 时间
-        log_lines.append(
+        log_line.append(
             with_color(
-                f"[{obj.time.strftime(r'%Y-%m-%d %H:%M:%S')}]",
+                obj.time.strftime(r"%Y-%m-%d %H:%M:%S"),
                 ForegroundColor.MAGENTA,
             )
         )
 
         # 文件名、调用者名、行号
-        log_lines.append(
+        log_line.append(
             with_color(
-                f"[{obj.stack.file_name}:{obj.stack.caller_name}:{obj.stack.line}]",
+                f"{obj.stack.file_name}:{obj.stack.caller_name}:{obj.stack.line}",
                 ForegroundColor.MAGENTA,
             )
         )
 
         # 线程
         if obj.stack.thread_name != "MainThread":
-            log_lines.append(
+            log_line.append(
                 with_color(
-                    f"[{obj.stack.thread_name}]",
+                    obj.stack.thread_name,
                     ForegroundColor.MAGENTA,
                 )
             )
 
+        # 日志等级
+        log_line.append(with_color(obj.level.value, _LOG_LEVEL_TO_COLOR[obj.level]))
+
         # 消息
-        log_lines.append(with_color(obj.msg, _LOG_LEVEL_TO_COLOR[obj.level]))
+        log_line.append(with_color(obj.msg, _LOG_LEVEL_TO_COLOR[obj.level]))
 
         # 错误信息
         if obj.exception:
-            log_lines.append(
-                "\n    "
+            extra_lines.append(
+                "    "
                 + with_color(f"[{obj.exception.name}]", BackgroundColor.RED)
                 + (
                     with_color(f" {obj.exception.desc}", ForegroundColor.RED)
@@ -188,17 +192,17 @@ class RunLogger:
                     else ""
                 )
             )
-            log_lines.append(
-                "\n        " + "\n        ".join(obj.exception.traceback.split("\n"))
+            extra_lines.append(
+                "        " + "\n        ".join(obj.exception.traceback.split("\n"))
             )
 
         # 额外信息
         if obj.extra:
-            log_lines.append(
+            extra_lines.append(
                 "\n    " + ", ".join(f"{k}={v}" for k, v in obj.extra.items())
             )
 
-        print(" ".join(log_lines))
+        print("\n".join([" - ".join(log_line), *extra_lines]))
 
     def _log(
         self,
