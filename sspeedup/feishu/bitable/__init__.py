@@ -30,17 +30,14 @@ class Bitable(Generic[_T]):
         view_id: Optional[str] = None,
         fliter: Optional[str] = None,
         sort: Optional[str] = None,
-        field_names: Optional[Sequence[str]] = None,
+        page_size: int = 20,
     ) -> AsyncGenerator[_BitableRecord[_T], None]:
         headers = {"Authorization": f"Bearer {await self._auth_token.get_token()}"}
         params = {
             "view_id": view_id,
             "fliter": fliter,
             "sort": sort,
-            # 示例：["a", "b"]
-            "field_names": "".join(("[", ",".join(f'"{x}"' for x in field_names), "]"))
-            if field_names
-            else None,
+            "page_size": page_size,
         }
 
         has_more: Optional[bool] = None
