@@ -28,14 +28,14 @@ class Bitable(Generic[_T]):
     async def iter_records(
         self,
         view_id: Optional[str] = None,
-        fliter: Optional[str] = None,
+        filter: Optional[str] = None,  # noqa: A002
         sort: Optional[str] = None,
         page_size: int = 20,
     ) -> AsyncGenerator[_BitableRecord[_T], None]:
         headers = {"Authorization": f"Bearer {await self._auth_token.get_token()}"}
         params = {
             "view_id": view_id,
-            "fliter": fliter,
+            "filter": filter,
             "sort": sort,
             "page_size": page_size,
         }
