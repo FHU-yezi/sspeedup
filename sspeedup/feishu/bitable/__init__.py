@@ -112,3 +112,18 @@ class Bitable(Generic[_T]):
             raise Exception(
                 f"更新表格记录数据失败（{response_json['code']}）：{response_json['msg']}"
             )
+
+    async def delete_record(self, record_id: str) -> None:
+        headers = {"Authorization": f"Bearer {await self._auth_token.get_token()}"}
+        response = await self._network_client.delete(
+            f"https://open.feishu.cn/open-apis/bitable/v1/apps/"
+            f"{self._app_id}/tables/{self._table_id}/records/{record_id}",
+            headers=headers,
+        )
+
+        response_json = response.json()
+
+        if response_json["code"] != 0:
+            raise Exception(
+                f"删除表格记录数据失败（{response_json['code']}）：{response_json['msg']}"
+            )
