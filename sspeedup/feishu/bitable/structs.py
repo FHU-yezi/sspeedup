@@ -1,4 +1,4 @@
-from typing import Generic, TypeVar
+from typing import Generic, List, TypeVar
 
 from msgspec import Struct
 
@@ -19,3 +19,10 @@ class BitableLink(Struct, **_BITABLE_STRUCT_CONFIG):
     text: str
     link: str
 
+
+class _BitableFormulaInner(Struct, **_BITABLE_STRUCT_CONFIG):
+    type: str  # noqa: A003
+    text: str
+
+
+BitableFormula = List[_BitableFormulaInner]
