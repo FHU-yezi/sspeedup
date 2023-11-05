@@ -1,3 +1,4 @@
+import sys
 from asyncio import run as asyncio_run
 from atexit import register as atexit_register
 from datetime import datetime
@@ -10,6 +11,7 @@ from threading import Thread
 from threading import current_thread as get_current_thread
 from time import sleep
 from traceback import format_exception
+from types import TracebackType
 from typing import Any, Dict, List, Optional, Union
 
 from msgspec import Struct
@@ -122,6 +124,7 @@ class RunLogger:
         mongo_collection: Any = None,
         auto_save_interval: int = 120,
         save_at_exit: bool = True,
+        log_unhandled_exception: bool = True,
     ) -> None:
         self._save_level = save_level
         self._print_level = print_level
@@ -145,6 +148,10 @@ class RunLogger:
             and self._mongo_collection.__class__.__name__ == "Collection"
         ):
             atexit_register(self._at_exit_handler)
+
+        # 记录未捕获异常
+        if log_unhandled_exception:
+            sys.excepthook = self._unhandled_exception_handler
 
     def _print_log(self, obj: _LogRecord) -> None:
         lines: List[str] = []
@@ -296,3 +303,14 @@ class RunLogger:
 
     def _at_exit_handler(self) -> None:
         self.save_all()
+
+    def _unhandled_exception_handler(
+        self,
+        type_: type(BaseException), # type: ignore
+        value: Exception,
+        traceback: Optional[TracebackType],
+    ) -> None:
+        if not issubclass(type_, KeyboardInterrupt):
+            self.critical("发生未捕获异常", exception=value)
+
+        sys.__excepthook__(type_, value, traceback)

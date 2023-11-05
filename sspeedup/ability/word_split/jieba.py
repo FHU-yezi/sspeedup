@@ -1,5 +1,5 @@
 from collections import Counter
-from typing import Any, Dict, Generator, Set
+from typing import Any, AsyncGenerator, Dict, Set
 
 from sspeedup.ability.exceptions import AbilityCallHTTPError, AbilityCallServiceError
 from sspeedup.ability.word_split._base import AbilitySplitter
@@ -29,12 +29,12 @@ class AbilityJiebaSplitterV1(AbilitySplitter):
         del file_name
         raise NotImplementedError
 
-    def split(self, text: str) -> Generator[str, None, None]:
+    async def split(self, text: str) -> AsyncGenerator[str, None]:
         data: Dict[str, Any] = {
             "library": "jieba",
             "text": text,
         }
-        response = self._client.post(url="/v1/split/normal", json=data)
+        response = await self._client.post(url="/v1/split/normal", json=data)
 
         if response.status_code != 200:
             raise AbilityCallHTTPError(code=response.status_code)
@@ -47,16 +47,16 @@ class AbilityJiebaSplitterV1(AbilitySplitter):
                 message=response_json["message"],
             )
 
-        yield from (
-            x for x in response_json["data"]["splitted_text"] if x not in self._stopwords
-        )
+        for x in response_json["data"]["splitted_text"]:
+            if x not in self._stopwords:
+                yield x
 
-    def get_word_freq(self, text: str) -> Counter:
+    async def get_word_freq(self, text: str) -> Counter:
         data: Dict[str, Any] = {
             "library": "jieba",
             "text": text,
         }
-        response = self._client.post(url="/v1/freq/normal", json=data)
+        response = await self._client.post(url="/v1/freq/normal", json=data)
 
         if response.status_code != 200:
             raise AbilityCallHTTPError(code=response.status_code)
@@ -102,12 +102,12 @@ class AbilityJiebaSearchSplitterV1(AbilitySplitter):
         del file_name
         raise NotImplementedError
 
-    def split(self, text: str) -> Generator[str, None, None]:
+    async def split(self, text: str) -> AsyncGenerator[str, None]:
         data: Dict[str, Any] = {
             "library": "jieba",
             "text": text,
         }
-        response = self._client.post(url="/v1/split/search", json=data)
+        response = await self._client.post(url="/v1/split/search", json=data)
 
         if response.status_code != 200:
             raise AbilityCallHTTPError(code=response.status_code)
@@ -120,16 +120,16 @@ class AbilityJiebaSearchSplitterV1(AbilitySplitter):
                 message=response_json["message"],
             )
 
-        yield from (
-            x for x in response_json["data"]["splitted_text"] if x not in self._stopwords
-        )
+        for x in response_json["data"]["splitted_text"]:
+            if x not in self._stopwords:
+                yield x
 
-    def get_word_freq(self, text: str) -> Counter:
+    async def get_word_freq(self, text: str) -> Counter:
         data: Dict[str, Any] = {
             "library": "jieba",
             "text": text,
         }
-        response = self._client.post(url="/v1/freq/search", json=data)
+        response = await self._client.post(url="/v1/freq/search", json=data)
 
         if response.status_code != 200:
             raise AbilityCallHTTPError(code=response.status_code)
@@ -174,14 +174,14 @@ class AbilityJiebaPossegSplitterV1(AbilitySplitter):
         with open(file_name, encoding="utf-8") as f:
             self._allowed_word_types = {x.strip() for x in f.readlines()}
 
-    def split(self, text: str) -> Generator[str, None, None]:
+    async def split(self, text: str) -> AsyncGenerator[str, None]:
         data: Dict[str, Any] = {
             "library": "jieba",
             "text": text,
         }
         if self._allowed_word_types:
             data["allowed_word_types"] = tuple(self._allowed_word_types)
-        response = self._client.post(url="/v1/split/posseg", json=data)
+        response = await self._client.post(url="/v1/split/posseg", json=data)
 
         if response.status_code != 200:
             raise AbilityCallHTTPError(code=response.status_code)
@@ -194,18 +194,18 @@ class AbilityJiebaPossegSplitterV1(AbilitySplitter):
                 message=response_json["message"],
             )
 
-        yield from (
-            x for x in response_json["data"]["splitted_text"] if x not in self._stopwords
-        )
+        for x in response_json["data"]["splitted_text"]:
+            if x not in self._stopwords:
+                yield x
 
-    def get_word_freq(self, text: str) -> Counter:
+    async def get_word_freq(self, text: str) -> Counter:
         data: Dict[str, Any] = {
             "library": "jieba",
             "text": text,
         }
         if self._allowed_word_types:
             data["allowed_word_types"] = tuple(self._allowed_word_types)
-        response = self._client.post(url="/v1/freq/posseg", json=data)
+        response = await self._client.post(url="/v1/freq/posseg", json=data)
 
         if response.status_code != 200:
             raise AbilityCallHTTPError(code=response.status_code)

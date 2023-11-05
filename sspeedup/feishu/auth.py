@@ -40,7 +40,9 @@ class FeishuAuthToken:
 
         response_json = response.json()
         if response_json["code"] != 0:
-            raise Exception(f"获取鉴权信息失败（{response_json['code']}）：{response_json['msg']}")
+            raise Exception(
+                f"获取鉴权信息失败（{response_json['code']}）：{response_json['msg']}"
+            )
 
         self._token = response_json["tenant_access_token"]
         self._token_expire_time = datetime.now() + timedelta(

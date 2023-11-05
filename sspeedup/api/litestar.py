@@ -8,6 +8,13 @@ from litestar.exceptions.http_exceptions import (
     MethodNotAllowedException,
     NotFoundException,
 )
+from litestar.status_codes import (
+    HTTP_200_OK,
+    HTTP_400_BAD_REQUEST,
+    HTTP_404_NOT_FOUND,
+    HTTP_405_METHOD_NOT_ALLOWED,
+    HTTP_500_INTERNAL_SERVER_ERROR,
+)
 from litestar.types import ExceptionHandlersMap
 from msgspec import Struct
 
@@ -32,24 +39,43 @@ class ResponseStruct(Struct, Generic[_T], frozen=True, kw_only=True):
     ok: bool
     code: int
     msg: str
-    data: Optional[_T] = None
+    data: _T
 
 
-def get_response_struct(
-    *, code: Code, msg: Optional[str] = None, data: Optional[_T] = None
-) -> ResponseStruct[_T]:
-    return ResponseStruct(
-        ok=is_ok(code),
-        code=code,
-        msg=msg if msg else get_default_msg(code),
-        data=data,
+def success(
+    *,
+    http_code: int = HTTP_200_OK,
+    code: Code = Code.SUCCESS,
+    msg: Optional[str] = None,
+    data: _T = None,
+) -> Response[ResponseStruct[_T]]:
+    return Response(
+        ResponseStruct(
+            ok=is_ok(code),
+            code=code,
+            msg=msg if msg else get_default_msg(code),
+            data=data,
+        ),
+        status_code=http_code,
     )
 
 
-SWAGGER_OPENAPI_CONFIG = {
-    "root_schema_site": "swagger",
-    "enabled_endpoints": {"swagger"},
-}
+def fail(
+    *,
+    http_code: int = HTTP_500_INTERNAL_SERVER_ERROR,
+    code: Code = Code.UNKNOWN_SERVER_ERROR,
+    msg: Optional[str] = None,
+    data: _T = None,
+) -> Response[ResponseStruct[_T]]:
+    return Response(
+        ResponseStruct(
+            ok=is_ok(code),
+            code=code,
+            msg=msg if msg else get_default_msg(code),
+            data=data,
+        ),
+        status_code=http_code,
+    )
 
 
 def _format_validation_errors(
@@ -74,23 +100,21 @@ def validation_exception_handler(
 ) -> Response[ResponseStruct]:
     exception = cast(ValidationException, exception)
 
-    return Response(
-        get_response_struct(
-            code=Code.BAD_ARGUMENTS,
-            msg=_format_validation_errors(exception.detail, exception.extra),  # type: ignore
-        ),
-        status_code=400,
+    return fail(
+        http_code=HTTP_400_BAD_REQUEST,
+        code=Code.BAD_ARGUMENTS,
+        msg=_format_validation_errors(exception.detail, exception.extra),  # type: ignore
     )
 
 
 def not_found_exception_handler(_: Request, exception: Exception) -> Response[bytes]:
-    return Response(b"", status_code=404)
+    return Response(b"", status_code=HTTP_404_NOT_FOUND)
 
 
 def method_not_allowd_exception_handler(
     _: Request, exception: Exception
 ) -> Response[bytes]:
-    return Response(b"", status_code=405)
+    return Response(b"", status_code=HTTP_405_METHOD_NOT_ALLOWED)
 
 
 _DESERIALIZE_FAILED_ARGS_STRING = {
@@ -106,17 +130,16 @@ def internal_server_exception_handler(
         for item in _DESERIALIZE_FAILED_ARGS_STRING:
             if item in exception.args[0]:
                 # 反序列化失败
-                return Response(
-                    get_response_struct(code=Code.DESERIALIZE_FAILED), status_code=400
+                return fail(
+                    http_code=HTTP_400_BAD_REQUEST,
+                    code=Code.DESERIALIZE_FAILED,
                 )
 
     print_exception(exception)
 
-    return Response(
-        get_response_struct(
-            code=Code.UNKNOWN_SERVER_ERROR,
-        ),
-        status_code=500,
+    return fail(
+        http_code=HTTP_500_INTERNAL_SERVER_ERROR,
+        code=Code.UNKNOWN_SERVER_ERROR,
     )
 
 
