@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
 from collections import Counter
-from typing import Generator, Optional, Set
+from typing import AsyncGenerator, Optional, Set
 
-from httpx import Client
+from httpx import AsyncClient
 
 
 class AbilitySplitter(ABC):
@@ -16,7 +16,7 @@ class AbilitySplitter(ABC):
         stopwords_file: Optional[str] = None,
         allowed_word_types_file: Optional[str] = None,
     ) -> None:
-        self._client = Client(
+        self._client = AsyncClient(
             base_url=f"{'https' if https else 'http'}://{host}:{port}/api",
             timeout=20,
         )
@@ -57,9 +57,9 @@ class AbilitySplitter(ABC):
         return word_list - self._stopwords
 
     @abstractmethod
-    def split(self, text: str) -> Generator[str, None, None]:
+    async def split(self, text: str) -> AsyncGenerator[str, None]:
         raise NotImplementedError
 
     @abstractmethod
-    def get_word_freq(self, text: str) -> Counter:
+    async def get_word_freq(self, text: str) -> Counter:
         raise NotImplementedError
