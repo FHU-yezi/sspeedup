@@ -75,6 +75,7 @@ def cron_str_to_kwargs(cron: str) -> Dict[str, str]:
         "day_of_week": day_of_week,
     }
 
+
 def get_start_time(td: Optional[timedelta] = None) -> datetime:
     """根据当前时间获取起始时间，当参数 td 为 None 时返回 1970-1-1
 

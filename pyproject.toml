@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "sspeedup"
-version = "0.21.1"
+version = "0.22.0"
 description = "开发工具箱"
 authors = ["yezi <yehaowei20060411@qq.com>"]
 license = "MIT"
@@ -28,9 +28,8 @@ msgspec = { version ="^0.18.2", optional = true }
 litestar = { version ="^2.0.1", optional = true }
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.0.287"
-pyright = "^1.1.316"
-black = "^23.1.0"
+ruff = "^0.1.3"
+pyright = "^1.1.333"
 
 [tool.poetry.extras]
 config = ["msgspec"]

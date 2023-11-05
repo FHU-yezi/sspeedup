@@ -18,7 +18,7 @@ def make_qrcode(
     box_size: int = 10,
     border: int = 4,
     fill_color: str = "black",
-    back_color: str = "white"
+    back_color: str = "white",
 ) -> Any:
     qrcode_obj = QRCode(
         version=version,
