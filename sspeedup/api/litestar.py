@@ -8,6 +8,7 @@ from litestar.exceptions.http_exceptions import (
     MethodNotAllowedException,
     NotFoundException,
 )
+from litestar.openapi.datastructures import ResponseSpec
 from litestar.status_codes import (
     HTTP_200_OK,
     HTTP_400_BAD_REQUEST,
@@ -45,15 +46,15 @@ class ResponseStruct(Struct, Generic[_T], frozen=True, kw_only=True):
 def success(
     *,
     http_code: int = HTTP_200_OK,
-    code: Code = Code.SUCCESS,
+    api_code: Code = Code.SUCCESS,
     msg: Optional[str] = None,
     data: _T = None,
 ) -> Response[ResponseStruct[_T]]:
     return Response(
         ResponseStruct(
-            ok=is_ok(code),
-            code=code,
-            msg=msg if msg else get_default_msg(code),
+            ok=is_ok(api_code),
+            code=api_code,
+            msg=msg if msg else get_default_msg(api_code),
             data=data,
         ),
         status_code=http_code,
@@ -63,15 +64,15 @@ def success(
 def fail(
     *,
     http_code: int = HTTP_500_INTERNAL_SERVER_ERROR,
-    code: Code = Code.UNKNOWN_SERVER_ERROR,
+    api_code: Code = Code.UNKNOWN_SERVER_ERROR,
     msg: Optional[str] = None,
     data: _T = None,
 ) -> Response[ResponseStruct[_T]]:
     return Response(
         ResponseStruct(
-            ok=is_ok(code),
-            code=code,
-            msg=msg if msg else get_default_msg(code),
+            ok=is_ok(api_code),
+            code=api_code,
+            msg=msg if msg else get_default_msg(api_code),
             data=data,
         ),
         status_code=http_code,
@@ -102,7 +103,7 @@ def validation_exception_handler(
 
     return fail(
         http_code=HTTP_400_BAD_REQUEST,
-        code=Code.BAD_ARGUMENTS,
+        api_code=Code.BAD_ARGUMENTS,
         msg=_format_validation_errors(exception.detail, exception.extra),  # type: ignore
     )
 
@@ -132,14 +133,14 @@ def internal_server_exception_handler(
                 # 反序列化失败
                 return fail(
                     http_code=HTTP_400_BAD_REQUEST,
-                    code=Code.DESERIALIZE_FAILED,
+                    api_code=Code.DESERIALIZE_FAILED,
                 )
 
     print_exception(exception)
 
     return fail(
         http_code=HTTP_500_INTERNAL_SERVER_ERROR,
-        code=Code.UNKNOWN_SERVER_ERROR,
+        api_code=Code.UNKNOWN_SERVER_ERROR,
     )
 
 
@@ -149,3 +150,10 @@ EXCEPTION_HANDLERS: ExceptionHandlersMap = {
     MethodNotAllowedException: method_not_allowd_exception_handler,
     Exception: internal_server_exception_handler,
 }
+
+
+def generate_response_spec(response_obj: Optional[type[Struct]] = None) -> ResponseSpec:
+    return ResponseSpec(
+        ResponseStruct[response_obj],  # type: ignore
+        generate_examples=False,
+    )
