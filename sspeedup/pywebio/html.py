@@ -21,7 +21,10 @@ def grey(text: str) -> str:
 def _colored_link(text: str, url: str, color: str, new_window: bool = False) -> str:
     if new_window:
         # 由于新打开的页面拥有对原页面的部分访问权限，这里需要进行处理
-        return f'<a href="{url}" style="color: {color}" target="_blank" rel="noopener noreferrer">{text}</a>'
+        return (
+            f'<a href="{url}" style="color: {color}" '
+            'target="_blank" rel="noopener noreferrer">{text}</a>'
+        )
 
     return f'<a href="{url}" style="color: {color}" target="_self" >{text}</a>'
 

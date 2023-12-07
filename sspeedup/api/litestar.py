@@ -89,7 +89,9 @@ def _format_validation_errors(
     for item in extra:
         result.append(
             f"{item['key']}"
-            f"（{item['source'].value if isinstance(item['source'], Enum) else item['source']}）："
+            f"（{item['source'].value
+                 if isinstance(item['source'], Enum)
+                   else item['source']}）："
             f"{item['message']}"
         )
 

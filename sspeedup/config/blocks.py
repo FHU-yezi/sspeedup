@@ -19,7 +19,7 @@ class MongoDBConfig(Struct, **CONFIG_STRUCT_CONFIG):
 
 class DeployConfig(Struct, **CONFIG_STRUCT_CONFIG):
     version: str = "v0.1.0"
-    host: str = "0.0.0.0"
+    host: str = "0.0.0.0"  # noqa: S104
     port: int = 8080
     uvicorn_log_level: Literal[
         "critical", "error", "warning", "info", "debug", "trace"
