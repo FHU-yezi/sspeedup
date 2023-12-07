@@ -51,7 +51,8 @@ def _format_errors(errors: List[ErrorDetails]) -> str:
     result: List[str] = ["数据校验失败："]
     for error in errors:
         result.append(
-            f"{' => '.join(str(x) for x in error['loc'])}（{error['type']}）：{error['msg']}"
+            f"{' => '.join(str(x) for x in error['loc'])}"
+            f"（{error['type']}）：{error['msg']}"
         )
     return "\n".join(result)
 

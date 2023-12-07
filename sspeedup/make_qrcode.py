@@ -27,4 +27,4 @@ def make_qrcode(
         border=border,
     )
     qrcode_obj.make(fit=version is None)
-    return qrcode_obj.make_image(fill_color=fill_color, back_color=back_color)._img
+    return qrcode_obj.make_image(fill_color=fill_color, back_color=back_color)._img  # noqa: SLF001
